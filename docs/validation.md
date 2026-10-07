@@ -22,3 +22,22 @@ Coverage includes published-only knowledge, duplicate/schema/review validation, 
 The restricted Windows runner could not initially start command processes and prevented tsx from querying OS user information. Installation and requested checks succeeded using the working approved runner. Docker 28.3.2 was available and the container checks ran locally. No required check remained unavailable.
 
 These are deterministic application/transport checks and a production-container smoke test. They do not prove real-model hallucination or prompt-injection resistance. The 15-case behavioural evaluation set and manual rubrics are provided separately. No API keys, paid requests, commits, pushes, remote repository creation, deployment or production Directus changes were used.
+
+## Routed chat authentication and rate-limit fix — 2026-10-07
+
+Reviewed baseline: b1a652511a02c5241e6d3567dcdd35769d5d0c48. PersonaCore was clean before changes; no applicable AGENTS.md was found. Work is limited to src/app.ts, tests/chat-route-security.test.ts and this validation record.
+
+The baseline global onRequest hook checked the raw URL against /v1/chat. Fastify also dispatches /v1/%63hat and /v1/ch%61t to that registered route, so those paths skipped both protection checks. With the new injected-provider regression file and the implementation still unchanged, node --import tsx --test tests/chat-route-security.test.ts ran 16 cases: 6 passed and 10 failed, reproducing unauthorized/unconfigured provider invocations and shared-quota bypasses.
+
+Authentication and the existing shared fixed-window limiter now run in the registered POST /v1/chat route's onRequest hook. Protection does not compare, decode or normalize request URLs. The shared bucket and rate-limit-before-auth ordering are preserved, including quota consumption by unauthorized requests. Global request timing, generated IDs, response headers and completion logging remain global. The handler's validation, concurrency, timeout and output handling are unchanged.
+
+The 16 new regression cases cover canonical and both router-supported encoded paths: missing/incorrect credentials return 401 within quota without provider invocation; missing bearer configuration returns 503 without invocation; valid credentials succeed; consuming quota through any of these paths blocks every variant with 429 and Retry-After without another invocation; /health remains public and makes no provider calls after exhaustion. They also check request IDs/headers and that unauthorized encoded attempts consume the shared bucket.
+
+| Fix validation (Node v22.17.1) | Actual result |
+| --- | --- |
+| npm run lint | Passed |
+| npm run typecheck | Passed |
+| npm test | Passed: 40 tests, 0 failures (24 existing + 16 new) |
+| npm run build | Passed |
+
+All new regressions use injected providers only. Existing SDK tests mock transport. No paid calls or real-model behaviour were tested. The knowledge pack and dependencies were not modified. Phase 2 was not started; no commit, push or deployment was performed. The original Phase 1 Docker results above are historical; Docker was not rebuilt for this narrowly scoped fix.

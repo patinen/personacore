@@ -1,4 +1,4 @@
-import Fastify, { LogController, type FastifyRequest, type FastifyServerOptions } from 'fastify';
+import Fastify, { LogController, type FastifyReply, type FastifyRequest, type FastifyServerOptions } from 'fastify';
 import { createHash, timingSafeEqual, randomUUID } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
 import type { Config } from './config.js';
@@ -46,7 +46,9 @@ export async function buildApp(config: Config, options: { provider?: ChatProvide
   app.addHook('onRequest', async (request, reply) => {
     started.set(request, performance.now());
     reply.header('x-request-id', request.id).header('cache-control', 'no-store');
-    if (request.method !== 'POST' || request.url.split('?')[0] !== '/v1/chat') return;
+  });
+  // Bind protection to the registered route so router-supported aliases cannot bypass it.
+  const protectChat = async (request: FastifyRequest, reply: FastifyReply) => {
     const now = performance.now();
     if (now - windowStart >= config.RATE_LIMIT_WINDOW_MS) { windowStart = now; requestsInWindow = 0; }
     if (++requestsInWindow > config.RATE_LIMIT_MAX) {
@@ -56,7 +58,7 @@ export async function buildApp(config: Config, options: { provider?: ChatProvide
     if (!config.CHAT_BEARER_SECRET) fail('unavailable');
     const authorization = request.headers.authorization;
     if (typeof authorization !== 'string' || !timingSafeEqual(hash(authorization), hash('Bearer ' + config.CHAT_BEARER_SECRET))) fail('unauthorized');
-  });
+  };
   app.addHook('onResponse', async (request, reply) => {
     const tokens = usage.get(request);
     app.log.info({ requestId: request.id, status: reply.statusCode, durationMs: Math.round(performance.now() - (started.get(request) ?? performance.now())), ...(tokens ? { usage: tokens } : {}) }, 'request_completed');
@@ -72,7 +74,7 @@ export async function buildApp(config: Config, options: { provider?: ChatProvide
     reply.code(status).send({ error: { code: known ? error.code : tooLarge ? 'input_too_large' : badJson ? 'invalid_request' : unsupported ? 'unsupported_media_type' : 'internal_error', message: known ? error.message : tooLarge ? 'Request body limit exceeded.' : badJson ? 'Invalid JSON request.' : unsupported ? 'Use application/json.' : 'Internal service error.' }, requestId: request.id });
   });
   app.get('/health', async () => ({ status: 'ok' }));
-  app.post('/v1/chat', async (request, reply): Promise<ChatResponse> => {
+  app.post('/v1/chat', { onRequest: protectChat }, async (request, reply): Promise<ChatResponse> => {
     const parsed = schema.safeParse(request.body);
     if (!parsed.success) fail('invalid_request');
     if (active >= config.MAX_CONCURRENCY) { reply.header('retry-after', '1'); fail('busy'); }
