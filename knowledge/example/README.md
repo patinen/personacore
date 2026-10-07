@@ -1,0 +1,1 @@
+This pack is entirely fictional and contains a deliberately hostile documentation excerpt for demonstration. It is never loaded by the service by default; the runtime loader rejects its purpose. Do not change its purpose to runtime and treat its statements as Juho facts. Author your own reviewed entries in knowledge/runtime instead.

@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
+const base = 'http://127.0.0.1:' + (process.env.PORT || '3001');
+const health = await fetch(base + '/health');
+assert.equal(health.status, 200);
+assert.deepEqual(await health.json(), { status: 'ok' });
+const body = JSON.stringify({ locale: 'en', history: [], message: 'Hello' });
+const denied = await fetch(base + '/v1/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body });
+assert.equal(denied.status, 401);
+const unavailable = await fetch(base + '/v1/chat', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + process.env.CHAT_BEARER_SECRET }, body });
+assert.equal(unavailable.status, 503);
+assert.equal((await unavailable.json()).error.code, 'service_unavailable');
+for (const path of ['/app/knowledge/example', '/app/tests', '/app/node_modules/typescript', '/app/.env']) assert.equal(existsSync(path), false, path);
+assert.notEqual(process.getuid(), 0);
+console.log('PASS: public health, auth rejection, real-provider 503, nonroot user, production-only files. No model calls.');
