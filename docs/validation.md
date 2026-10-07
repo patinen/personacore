@@ -65,3 +65,13 @@ Coverage retains the canonical and encoded-path security regressions and adds va
 Docker smoke used only a synthetic bearer secret and no provider credentials. Initial local invocations with an insufficient secret and without the inspection command's required path were rejected as expected; corrected invocations passed. The final image was tested with the persistent QA volume, then the disposable container and volume were removed. SQLite emits Node's experimental-feature warning; the implementation uses the documented Node 22.17 APIs.
 
 These are deterministic application, mocked-transport and container checks. They do not establish actual model behaviour, hallucination resistance or an exact currency cap. No paid calls, commit, push, deployment or production Directus mutation occurred. Activation also requires the portfolio/CMS operational steps and later real-model evaluation.
+
+## Rejected-response usage correction — 2026-10-08
+
+Reviewed baseline 496e123f4979cca47f3fe06b275de09c738a4adc; working tree initially clean. Installed OpenAI SDK types and implementation were inspected: responses.parse invokes output parsing after create and can reject before exposing usage. The adapter now uses non-streaming responses.create with the same structured-output schema, store:false, signal and zero retries. It captures counters before status/refusal checks and strict JSON/Zod parsing. A typed ProviderRejected error carries counters only to application accounting; raw responses and parsing errors are never exposed. Successful and rejected settlement paths are mutually exclusive, so measured usage is recorded once independently of answer acceptance.
+
+Mock adapter-to-application regressions cover completed, incomplete, refused, malformed JSON, invalid schema, transport failure, absent usage and invalid counters. Rejected answers return 502 with attempts=1, successes=0, measured_calls=1 and tokens=42/12/54 when those counters were returned. Transport/unknown/invalid usage creates no measurements. Reservations, concurrency, cancellation, encoded-route protection and zero retries remain covered.
+
+Node v22.17.1: lint, typecheck, full tests (64 passed, zero failures) and build passed. All SDK requests use mocked transport; no live model behaviour or paid calls were tested. Knowledge, activation and deployment were unchanged; no commits or pushes.
+
+Official API context: [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs) documents refusal and incomplete-response handling. Installed SDK implementation was the source for the local create/parse decision.

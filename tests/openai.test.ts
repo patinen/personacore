@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import OpenAI from 'openai';
+import { buildApp } from '../src/app.js';
+import { SQLiteUsageStore } from '../src/usage.js';
+import { headers } from './helpers.js';
 import { OpenAIProvider } from '../src/providers/openai.js';
 import { config, runtime, payload } from './helpers.js';
 const response = (text: string, status = 'completed') => new Response(JSON.stringify({
@@ -41,3 +44,36 @@ test('default controlled retry policy is zero and SDK respects explicit abort', 
   const aborted = new AbortController(); aborted.abort();
   await assert.rejects(adapter.generate({ ...input, signal: aborted.signal })); assert.equal(calls, 1);
 });
+
+for (const scenario of ['completed', 'incomplete', 'refusal', 'malformed', 'schema-invalid', 'transport', 'unknown-usage', 'invalid-usage'] as const) {
+  test('adapter-to-application accounting: ' + scenario, async t => {
+    const conf = config({ OPENAI_MODEL: 'test-model' });
+    const store = new SQLiteUsageStore(conf);
+    let calls = 0;
+    const client = new OpenAI({ apiKey: 'synthetic-key', maxRetries: 2, logLevel: 'off', fetch: async () => {
+      calls++;
+      if (scenario === 'transport') return new Response('{}', { status: 500 });
+      const raw = await response(scenario === 'malformed' ? '{' : scenario === 'schema-invalid' ? '{}' : JSON.stringify({ answer: 'Hello', sourceIds: [] }), scenario === 'incomplete' ? 'incomplete' : 'completed').json();
+      if (scenario === 'refusal') raw.output[0].content = [{ type: 'refusal', refusal: 'Private refusal text' }];
+      if (scenario === 'unknown-usage') delete raw.usage;
+      if (scenario === 'invalid-usage') raw.usage.total_tokens = -1;
+      return Response.json(raw);
+    } });
+    const app = await buildApp(conf, { provider: new OpenAIProvider(conf, client), usageStore: store, logger: false });
+    t.after(() => app.close());
+    const result = await app.inject({ method: 'POST', url: '/v1/chat', headers, payload });
+    const accepted = ['completed', 'unknown-usage', 'invalid-usage'].includes(scenario);
+    assert.equal(result.statusCode, accepted ? 200 : 502);
+    const counters = store.db.prepare('SELECT * FROM aggregate_daily').get()!;
+    assert.equal(counters.attempts, 1);
+    assert.equal(counters.successes, accepted ? 1 : 0);
+    const measured = !['transport', 'unknown-usage', 'invalid-usage'].includes(scenario);
+    assert.equal(counters.measured_calls, measured ? 1 : 0);
+    assert.equal(counters.input_tokens, measured ? 42 : 0);
+    assert.equal(counters.output_tokens, measured ? 12 : 0);
+    assert.equal(counters.total_tokens, measured ? 54 : 0);
+    assert.equal(calls, 1);
+    assert.ok(!result.body.includes('Private refusal text'));
+    assert.ok(!result.body.includes('synthetic-key'));
+  });
+}

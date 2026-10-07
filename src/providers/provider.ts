@@ -8,3 +8,8 @@ export interface ChatProvider {
   generate(input: ProviderInput): Promise<ProviderResult>;
 }
 export class ProviderUnavailable extends Error {}
+
+// Carries only measured counters, never provider output or error details.
+export class ProviderRejected extends Error {
+  constructor(readonly usage?: TokenUsage) { super('Provider answer rejected'); }
+}

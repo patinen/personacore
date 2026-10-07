@@ -8,7 +8,7 @@ import { instructionsVersion } from './instructions/v1.js';
 import { OpenAIProvider } from './providers/openai.js';
 import { FakeProvider } from './providers/fake.js';
 import { AdmissionDenied, SQLiteUsageStore, validVisitor, visitorHeader, type UsageStore, type Reservation } from './usage.js';
-import { ProviderUnavailable, type ChatProvider } from './providers/provider.js';
+import { ProviderUnavailable, ProviderRejected, type ChatProvider } from './providers/provider.js';
 class ServiceError extends Error {
   constructor(readonly status: number, readonly code: string, message: string) { super(message); }
 }
@@ -106,12 +106,18 @@ export async function buildApp(config: Config, options: { provider?: ChatProvide
       timer = setTimeout(() => { expired = true; controller.abort(); reject(new ServiceError(504, 'provider_timeout', 'Chat request exceeded its time limit.')); }, Math.max(1, config.REQUEST_TIMEOUT_MS - (performance.now() - (started.get(request) ?? start))));
     });
     // Slot is held until the underlying call settles, even if it ignores abort.
-    const task = Promise.resolve().then(() => provider.generate({ request: parsed.data, knowledge, signal: controller.signal })).then(result => {
-      if (result.usage && Object.values(result.usage).every(n => Number.isSafeInteger(n) && n >= 0)) {
-        usage.set(request, result.usage);
-        try { store.recordUsage(reservation, result.usage); } catch { databaseFailed = true; fail('unavailable'); }
+    const recordMeasuredUsage = (tokens: TokenUsage | undefined) => {
+      if (tokens && [tokens.inputTokens, tokens.outputTokens, tokens.totalTokens].every(n => Number.isSafeInteger(n) && n >= 0)) {
+        usage.set(request, tokens);
+        try { store.recordUsage(reservation, tokens); } catch { databaseFailed = true; fail('unavailable'); }
       }
+    };
+    const task = Promise.resolve().then(() => provider.generate({ request: parsed.data, knowledge, signal: controller.signal })).then(result => {
+      recordMeasuredUsage(result.usage);
       return result;
+    }, (error: unknown) => {
+      if (error instanceof ProviderRejected) recordMeasuredUsage(error.usage);
+      throw error;
     });
     const tracked = task.finally(() => { active--; controllers.delete(controller); });
     try {

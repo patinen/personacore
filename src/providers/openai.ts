@@ -4,7 +4,7 @@ import type { Config } from '../config.js';
 import { modelAnswerSchema } from '../contracts.js';
 import { instructions } from '../instructions/v1.js';
 import type { ChatProvider, ProviderInput, ProviderResult } from './provider.js';
-import { ProviderUnavailable } from './provider.js';
+import { ProviderUnavailable, ProviderRejected } from './provider.js';
 export class OpenAIProvider implements ChatProvider {
   readonly kind = 'openai' as const;
   private readonly client: OpenAI | undefined;
@@ -17,7 +17,7 @@ export class OpenAIProvider implements ChatProvider {
   isAvailable() { return Boolean(this.client && this.config.OPENAI_MODEL); }
   async generate({ request, knowledge, signal }: ProviderInput): Promise<ProviderResult> {
     if (!this.client || !this.config.OPENAI_MODEL) throw new ProviderUnavailable('Real provider is not configured');
-    const response = await this.client.responses.parse({
+    const response = await this.client.responses.create({
       model: this.config.OPENAI_MODEL, store: false,
       instructions: instructions + '\nRequested locale: ' + request.locale,
       input: [
@@ -28,10 +28,15 @@ export class OpenAIProvider implements ChatProvider {
       text: { format: zodTextFormat(modelAnswerSchema, 'personacore_answer') },
       max_output_tokens: this.config.MAX_OUTPUT_TOKENS,
     }, { signal, maxRetries: 0 });
-    if (response.status !== 'completed' || !response.output_parsed) throw new Error('Provider returned incomplete or refused output');
-    const parsed = modelAnswerSchema.parse(response.output_parsed);
-    return { ...parsed, ...(response.usage ? { usage: {
+    const usage = response.usage ? {
       inputTokens: response.usage.input_tokens, outputTokens: response.usage.output_tokens, totalTokens: response.usage.total_tokens,
-    } } : {}) };
+    } : undefined;
+    try {
+      if (response.status !== 'completed' || response.output.some(item =>
+        item.type === 'message' && item.content.some(content => content.type === 'refusal')
+      )) throw new Error('Rejected status or refusal');
+      const parsed = modelAnswerSchema.parse(JSON.parse(response.output_text));
+      return { ...parsed, ...(usage ? { usage } : {}) };
+    } catch { throw new ProviderRejected(usage); }
   }
 }
