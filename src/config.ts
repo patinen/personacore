@@ -3,6 +3,13 @@ const number = (fallback: number, max: number) => z.coerce.number().int().positi
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: number(3001, 65535),
+  CHAT_ENABLED: z.enum(['true', 'false']).default('false').transform(v => v === 'true'),
+  DATA_DIR: z.string().min(1).optional(),
+  DAILY_ATTEMPT_CAP: number(100, 100000),
+  VISITOR_DAILY_ALLOWANCE: number(10, 10000),
+  VISITOR_RATE_MAX: number(5, 1000),
+  VISITOR_RATE_WINDOW_MS: number(60000, 3600000),
+  USAGE_RETENTION_DAYS: number(14, 90),
   KNOWLEDGE_DIR: z.string().min(1),
   CHAT_BEARER_SECRET: z.string().min(32).optional(),
   PROVIDER: z.enum(['openai', 'fake']).default('openai'),
@@ -28,5 +35,7 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
   if (!result.success) throw new Error('Invalid configuration fields: ' + result.error.issues.map(i => i.path.join('.')).join(', '));
   const config = result.data;
   if (config.PROVIDER === 'fake' && config.NODE_ENV === 'production') throw new Error('Fake provider is restricted to development/testing.');
+  if (config.OPENAI_MAX_RETRIES !== 0) throw new Error('Attempt controls require OPENAI_MAX_RETRIES=0.');
+  if (config.NODE_ENV === 'production' && !config.DATA_DIR) throw new Error('Production requires DATA_DIR on a persistent volume.');
   return config;
 }

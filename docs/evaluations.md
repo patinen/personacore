@@ -19,3 +19,5 @@ Remove-Item Env:PERSONACORE_LIVE_EVAL
 POSIX: PERSONACORE_LIVE_EVAL=1 npm run eval:live -- --allow-paid
 
 No paid evaluation was run during Phase 1 implementation. Before public launch, expand the cases with reviewed owner context, ambiguous questions, longer histories and stronger attack variants, and evaluate the chosen production model.
+
+Phase 2 update: the live evaluator supplies a fresh internal visitor identity but does not bypass admission controls. CHAT_ENABLED must be explicitly true, OPENAI_MAX_RETRIES=0 and the configured daily/visitor/rate allowances must cover selected cases. Production requires DATA_DIR. It remains double opt-in and was not run in Phase 2.

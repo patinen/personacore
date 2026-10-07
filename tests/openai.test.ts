@@ -34,7 +34,7 @@ test('default controlled retry policy is zero and SDK respects explicit abort', 
   assert.equal(config().OPENAI_MAX_RETRIES, 0);
   assert.throws(() => config({ OPENAI_MAX_RETRIES: '3' }));
   let calls = 0;
-  const client = new OpenAI({ apiKey: 'synthetic-key', maxRetries: 0, logLevel: 'off', fetch: async () => { calls++; return new Response('{"error":{"message":"private-error"}}', { status: 500, headers: { 'content-type': 'application/json' } }); } });
+  const client = new OpenAI({ apiKey: 'synthetic-key', maxRetries: 2, logLevel: 'off', fetch: async () => { calls++; return new Response('{"error":{"message":"private-error"}}', { status: 500, headers: { 'content-type': 'application/json' } }); } });
   const adapter = new OpenAIProvider(config({ OPENAI_MODEL: 'test-model' }), client);
   const input = { request: payload as { locale: 'en'; message: string; history: [] }, knowledge: await runtime(), signal: new AbortController().signal };
   await assert.rejects(adapter.generate(input)); assert.equal(calls, 1);

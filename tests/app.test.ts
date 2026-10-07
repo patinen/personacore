@@ -111,7 +111,7 @@ test('shared per-process rate limit and retry-after; health remains available', 
 test('fake configuration cannot enter production and responses are explicitly simulated', async t => {
   assert.throws(() => config({ NODE_ENV: 'production', PROVIDER: 'fake' }), /restricted/);
   assert.throws(() => new FakeProvider('production'), /restricted/);
-  await assert.rejects(buildApp(config({ NODE_ENV: 'production' }), { logger: false, provider: new FakeProvider('test') }), /restricted/);
+  await assert.rejects(buildApp(config({ NODE_ENV: 'production', DATA_DIR: './data' }), { logger: false, provider: new FakeProvider('test') }), /restricted/);
   const app = await buildApp(config({ PROVIDER: 'fake' }), { logger: false }); t.after(() => app.close());
   const res = await app.inject({ method: 'POST', url: '/v1/chat', headers, payload });
   assert.equal(res.json().metadata.simulated, true); assert.match(res.json().answer, /not AI/);
@@ -123,7 +123,7 @@ test('logs contain IDs/status/duration/usage, never conversations, profile, cred
   const res = await app.inject({ method: 'POST', url: '/v1/chat?private=URL_MARKER', headers: { ...headers, 'x-request-id': 'ATTACKER_ID_MARKER' }, payload: { ...payload, message: 'CONVERSATION_PRIVATE_MARKER' } });
   await app.inject({ method: 'POST', url: '/v1/chat', headers, payload: '{' });
   assert.equal(res.statusCode, 200);
-  assert.doesNotMatch(logged, new RegExp([secret, 'API_KEY_MARKER', 'CONVERSATION_PRIVATE_MARKER', 'ANSWER_PRIVATE_MARKER', 'URL_MARKER', 'ATTACKER_ID_MARKER', 'The representative is for Juho'].join('|')));
+  assert.doesNotMatch(logged, new RegExp([secret, headers['x-personacore-visitor'], 'API_KEY_MARKER', 'CONVERSATION_PRIVATE_MARKER', 'ANSWER_PRIVATE_MARKER', 'URL_MARKER', 'ATTACKER_ID_MARKER', 'The representative is for Juho'].join('|')));
   const records = logged.trim().split('\n').map(line => JSON.parse(line));
   assert.ok(records.some(row => row.requestId === res.json().requestId && row.status === 200 && typeof row.durationMs === 'number' && row.usage.totalTokens === 15));
 });

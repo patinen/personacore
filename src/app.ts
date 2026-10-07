@@ -7,6 +7,7 @@ import { loadKnowledge, resolveSources, type Knowledge } from './knowledge.js';
 import { instructionsVersion } from './instructions/v1.js';
 import { OpenAIProvider } from './providers/openai.js';
 import { FakeProvider } from './providers/fake.js';
+import { AdmissionDenied, SQLiteUsageStore, validVisitor, visitorHeader, type UsageStore, type Reservation } from './usage.js';
 import { ProviderUnavailable, type ChatProvider } from './providers/provider.js';
 class ServiceError extends Error {
   constructor(readonly status: number, readonly code: string, message: string) { super(message); }
@@ -22,7 +23,7 @@ const codes: Record<string, [number, string, string]> = {
   provider: [502, 'provider_error', 'Chat provider could not complete the request.'],
 };
 function fail(key: keyof typeof codes): never { const [status, code, message] = codes[key]!; throw new ServiceError(status, code, message); }
-export async function buildApp(config: Config, options: { provider?: ChatProvider; knowledge?: Knowledge; logger?: FastifyServerOptions['logger'] } = {}) {
+export async function buildApp(config: Config, options: { provider?: ChatProvider; knowledge?: Knowledge; logger?: FastifyServerOptions['logger']; usageStore?: UsageStore; clock?: () => Date } = {}) {
   if (config.PROVIDER === 'fake' && config.NODE_ENV === 'production') throw new Error('Fake provider is restricted to development/testing');
   const knowledge = options.knowledge ?? await loadKnowledge(config.KNOWLEDGE_DIR, config.MAX_CONTEXT_CHARS);
   if (knowledge.context.length > config.MAX_CONTEXT_CHARS || knowledge.entries.some(e => e.status !== 'published')) throw new Error('Invalid runtime knowledge');
@@ -35,6 +36,10 @@ export async function buildApp(config: Config, options: { provider?: ChatProvide
     logger: options.logger ?? { level: 'info', redact: ['req.headers.authorization', 'headers.authorization', 'apiKey', 'body', 'conversation', 'knowledge'] },
     trustProxy: false,
   });
+  let store: UsageStore | undefined = options.usageStore;
+  let databaseFailed = false;
+  try { store ??= new SQLiteUsageStore(config); } catch { databaseFailed = true; }
+  const clock = options.clock ?? (() => new Date());
   const schema = chatRequestSchema(config);
   const started = new WeakMap<FastifyRequest, number>();
   const usage = new WeakMap<FastifyRequest, TokenUsage>();
@@ -77,7 +82,19 @@ export async function buildApp(config: Config, options: { provider?: ChatProvide
   app.post('/v1/chat', { onRequest: protectChat }, async (request, reply): Promise<ChatResponse> => {
     const parsed = schema.safeParse(request.body);
     if (!parsed.success) fail('invalid_request');
+    const visitor = request.headers[visitorHeader];
+    if (!validVisitor(visitor)) throw new ServiceError(400, 'invalid_visitor', 'Valid internal visitor identity is required.');
+    if (!config.CHAT_ENABLED || databaseFailed || !store || !provider.isAvailable()) fail('unavailable');
     if (active >= config.MAX_CONCURRENCY) { reply.header('retry-after', '1'); fail('busy'); }
+    if (performance.now() - (started.get(request) ?? performance.now()) >= config.REQUEST_TIMEOUT_MS) fail('timeout');
+    let reservation: Reservation;
+    try { reservation = store.reserve(visitor, clock()); } catch (error) {
+      if (error instanceof AdmissionDenied) {
+        if (error.retryAfter) reply.header('retry-after', error.retryAfter);
+        throw new ServiceError(429, error.code, 'Chat usage allowance exceeded.');
+      }
+      databaseFailed = true; fail('unavailable');
+    }
     active++;
     const controller = new AbortController(); controllers.add(controller);
     const start = performance.now();
@@ -89,17 +106,23 @@ export async function buildApp(config: Config, options: { provider?: ChatProvide
       timer = setTimeout(() => { expired = true; controller.abort(); reject(new ServiceError(504, 'provider_timeout', 'Chat request exceeded its time limit.')); }, Math.max(1, config.REQUEST_TIMEOUT_MS - (performance.now() - (started.get(request) ?? start))));
     });
     // Slot is held until the underlying call settles, even if it ignores abort.
-    const task = Promise.resolve().then(() => provider.generate({ request: parsed.data, knowledge, signal: controller.signal }));
+    const task = Promise.resolve().then(() => provider.generate({ request: parsed.data, knowledge, signal: controller.signal })).then(result => {
+      if (result.usage && Object.values(result.usage).every(n => Number.isSafeInteger(n) && n >= 0)) {
+        usage.set(request, result.usage);
+        try { store.recordUsage(reservation, result.usage); } catch { databaseFailed = true; fail('unavailable'); }
+      }
+      return result;
+    });
     const tracked = task.finally(() => { active--; controllers.delete(controller); });
     try {
       const result = await Promise.race([tracked, deadline]);
-      if (result.usage && Object.values(result.usage).every(n => Number.isSafeInteger(n) && n >= 0)) usage.set(request, result.usage);
       const answer = modelAnswerSchema.safeParse({ answer: result.answer, sourceIds: result.sourceIds });
       if (!answer.success || !answer.data.answer.trim() || answer.data.answer.length > config.MAX_OUTPUT_CHARS || answer.data.sourceIds.length > 20) fail('output');
       // Citations are separate server-owned metadata. Reject provider-authored links.
       if (/https?:|www\.|\[[^\]]*\]\(|<\s*a\b|(?:javascript|data|ftp|file|mailto):/i.test(answer.data.answer)) fail('output');
       let sources;
       try { sources = resolveSources(answer.data.sourceIds, knowledge); } catch { fail('output'); }
+      try { store.recordSuccess(reservation); } catch { databaseFailed = true; fail('unavailable'); }
       return { answer: answer.data.answer, sources, requestId: request.id, metadata: {
         durationMs: Math.round(performance.now() - start), knowledgeVersion: knowledge.version,
         instructionsVersion, provider: provider.kind, simulated: provider.kind === 'fake',
@@ -114,6 +137,7 @@ export async function buildApp(config: Config, options: { provider?: ChatProvide
       clearTimeout(timer); reply.raw.off('close', disconnected);
     }
   });
+  app.addHook('onClose', async () => { try { store?.close(); } catch { /* No raw database details in logs. */ } });
   app.addHook('preClose', async () => { for (const controller of controllers) controller.abort(); });
   return app;
 }

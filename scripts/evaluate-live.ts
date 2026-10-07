@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { z } from 'zod';
@@ -15,11 +16,12 @@ async function main() {
   const knowledge = synthetic
     ? prepareKnowledge(JSON.parse(await readFile(resolve('tests/fixtures/knowledge/pack.json'), 'utf8')), config.MAX_CONTEXT_CHARS, true)
     : await loadKnowledge(config.KNOWLEDGE_DIR, config.MAX_CONTEXT_CHARS);
+  const visitor = randomBytes(32).toString("base64url");
   const app = await buildApp(config, { knowledge, logger: false });
   console.log(JSON.stringify({ mode: 'PAID_LIVE_EVALUATION', model: config.OPENAI_MODEL, knowledgeVersion: knowledge.version, cases: cases.length, synthetic, grading: 'Human review required; no automated hallucination pass is asserted.' }));
   try {
     for (const item of cases) {
-      const response = await app.inject({ method: 'POST', url: '/v1/chat', headers: { authorization: 'Bearer ' + config.CHAT_BEARER_SECRET }, payload: { locale: item.locale, message: item.message, history: item.history ?? [] } });
+      const response = await app.inject({ method: 'POST', url: '/v1/chat', headers: { authorization: 'Bearer ' + config.CHAT_BEARER_SECRET, 'x-personacore-visitor': visitor }, payload: { locale: item.locale, message: item.message, history: item.history ?? [] } });
       console.log(JSON.stringify({ caseId: item.id, rubric: item.expect, status: response.statusCode, response: response.json() }));
       if (response.statusCode !== 200) { process.exitCode = 1; break; }
     }

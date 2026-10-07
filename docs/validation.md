@@ -41,3 +41,27 @@ The 16 new regression cases cover canonical and both router-supported encoded pa
 | npm run build | Passed |
 
 All new regressions use injected providers only. Existing SDK tests mock transport. No paid calls or real-model behaviour were tested. The knowledge pack and dependencies were not modified. Phase 2 was not started; no commit, push or deployment was performed. The original Phase 1 Docker results above are historical; Docker was not rebuilt for this narrowly scoped fix.
+
+## Phase 2 validation — 2026-10-08
+
+Started from a clean reviewed baseline 39f127e1b9584ef22d4cab6906c3b51c11b099c2. No applicable AGENTS.md was found. Knowledge content remains unchanged. The portfolio repository was modified separately as explicitly requested.
+
+| Check | Actual result |
+| --- | --- |
+| Node / npm | v22.17.1 / 10.9.2 |
+| npm run lint | Passed |
+| npm run typecheck | Passed |
+| npm test | 56 passed, 0 failed |
+| npm run build | Passed |
+| Final Docker build | Passed; Node 22 Alpine, container Node v22.23.3 |
+| Local container smoke | Passed: public health, auth rejection, unavailable real provider, nonroot process, writable data volume, read-only knowledge, production-only packaging |
+| Persistence | Reservation survived restart and replacement of the container using the same disposable local volume |
+| Operational inspection | Aggregate-only readonly query returned one reserved attempt, zero successes and zero measured calls |
+| Healthcheck / shutdown | healthy / SIGTERM exit 0 |
+| Live model evaluation | Not run |
+
+Coverage retains the canonical and encoded-path security regressions and adds validated internal identities, atomic concurrent admission, reopening/migrations, separate database handles and lock failure, aggregate/visitor allowances, visitor rate windows, Helsinki summer/winter midnight and DST boundaries, retention, errors/timeouts/disconnects retaining reservations, measured usage, disabled/unconfigured service, database fail-closed behaviour and concurrency rejection before reservation. The mocked SDK transport confirms a request overrides even an injected client's retry setting to zero. Logs exclude raw visitor identity as well as conversations and secrets.
+
+Docker smoke used only a synthetic bearer secret and no provider credentials. Initial local invocations with an insufficient secret and without the inspection command's required path were rejected as expected; corrected invocations passed. The final image was tested with the persistent QA volume, then the disposable container and volume were removed. SQLite emits Node's experimental-feature warning; the implementation uses the documented Node 22.17 APIs.
+
+These are deterministic application, mocked-transport and container checks. They do not establish actual model behaviour, hallucination resistance or an exact currency cap. No paid calls, commit, push, deployment or production Directus mutation occurred. Activation also requires the portfolio/CMS operational steps and later real-model evaluation.

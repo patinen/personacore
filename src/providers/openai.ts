@@ -10,10 +10,11 @@ export class OpenAIProvider implements ChatProvider {
   private readonly client: OpenAI | undefined;
   constructor(private readonly config: Config, client?: OpenAI) {
     this.client = client ?? (config.OPENAI_API_KEY && config.OPENAI_MODEL ? new OpenAI({
-      apiKey: config.OPENAI_API_KEY, maxRetries: config.OPENAI_MAX_RETRIES,
+      apiKey: config.OPENAI_API_KEY, maxRetries: 0,
       timeout: config.REQUEST_TIMEOUT_MS, logLevel: 'off',
     }) : undefined);
   }
+  isAvailable() { return Boolean(this.client && this.config.OPENAI_MODEL); }
   async generate({ request, knowledge, signal }: ProviderInput): Promise<ProviderResult> {
     if (!this.client || !this.config.OPENAI_MODEL) throw new ProviderUnavailable('Real provider is not configured');
     const response = await this.client.responses.parse({
@@ -26,7 +27,7 @@ export class OpenAIProvider implements ChatProvider {
       ],
       text: { format: zodTextFormat(modelAnswerSchema, 'personacore_answer') },
       max_output_tokens: this.config.MAX_OUTPUT_TOKENS,
-    }, { signal });
+    }, { signal, maxRetries: 0 });
     if (response.status !== 'completed' || !response.output_parsed) throw new Error('Provider returned incomplete or refused output');
     const parsed = modelAnswerSchema.parse(response.output_parsed);
     return { ...parsed, ...(response.usage ? { usage: {

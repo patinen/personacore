@@ -8,3 +8,5 @@
 !knowledge/
 !knowledge/runtime/
 !knowledge/runtime/**
+!scripts/
+!scripts/usage.mjs

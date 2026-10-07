@@ -1,10 +1,10 @@
 # PersonaCore
 
-Phase 1 of Juho's AI representative for the existing technical portfolio. Visitors can ask professional, technical, personal and casual questions. The runtime pack contains only explicitly approved identity, conversation scope, booking boundaries and voice facts; unknown background, skills, interests and project content remain drafts. Nothing here integrates into or modifies the portfolio yet.
+PersonaCore, through Phase 2, is Juho's AI representative for the existing technical portfolio. Visitors can ask professional, technical, personal and casual questions. The runtime pack contains only explicitly approved identity, conversation scope, booking boundaries and voice facts; unknown background, skills, interests and project content remain drafts. The separate portfolio repository now includes a disabled-by-default server proxy and inline panel; activation remains an owner operation. See docs/public-demo.md.
 
 ## Local setup
 
-Use Node.js 22 and npm. From this directory:
+Use Node.js >=22.17 <23 and npm. From this directory:
 
 ```powershell
 npm ci
@@ -13,7 +13,7 @@ Copy-Item .env.example .env
 npm run dev
 ```
 
-Required configuration: KNOWLEDGE_DIR points explicitly to the curated directory containing pack.json (example: ./knowledge/runtime). Real chat also requires CHAT_BEARER_SECRET (random, at least 32 characters), OPENAI_API_KEY and OPENAI_MODEL. No model is hardcoded. Choose a Responses/Structured Outputs-capable model available to your account; no price is assumed. Generate a bearer secret locally with node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))" and store it only on the two servers. Do not commit .env.
+Required configuration: KNOWLEDGE_DIR points explicitly to the curated directory containing pack.json (example: ./knowledge/runtime). Real chat also requires CHAT_ENABLED=true, a data directory (required persistently in production), an internal x-personacore-visitor header, CHAT_BEARER_SECRET (random, at least 32 characters), OPENAI_API_KEY and OPENAI_MODEL. No model is hardcoded. Choose a Responses/Structured Outputs-capable model available to your account; no price is assumed. Generate a bearer secret locally with node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))" and store it only on the two servers. Do not commit .env.
 
 Without key/model or bearer configuration, /health works and /v1/chat returns a sanitized 503. It never falls back to fake. For development only, explicitly set PROVIDER=fake and keep NODE_ENV=development or test; responses say they are not AI and carry simulated:true. Production refuses the fake provider.
 
@@ -33,6 +33,7 @@ Without key/model or bearer configuration, /health works and /v1/chat returns a 
 curl http://localhost:3001/health
 curl http://localhost:3001/v1/chat \
   -H 'Content-Type: application/json' \
+  -H 'x-personacore-visitor: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' \
   -H "Authorization: Bearer $CHAT_BEARER_SECRET" \
   -d '{"locale":"en","history":[],"message":"Could this chat be extended with booking?"}'
 ```
@@ -69,7 +70,7 @@ Only approve real facts and limitations. Do not copy fictional example facts int
 
 .env.example lists all settings and defaults. MAX_MESSAGE_CHARS, MAX_HISTORY_MESSAGES and MAX_HISTORY_CHARS bound input. MAX_BODY_BYTES bounds the JSON body. MAX_CONTEXT_CHARS bounds the entire published JSON context, using characters rather than a model-specific token estimator. Overflow fails with authoring/configuration guidance; no arbitrary approved facts are dropped. Operator must choose budgets that fit the configured model, including instructions and conversation. MAX_OUTPUT_CHARS limits accepted text; MAX_OUTPUT_TOKENS bounds generation (including reasoning for applicable models).
 
-REQUEST_TIMEOUT_MS is an overall chat deadline from onRequest, also used for receiving HTTP requests; MAX_CONCURRENCY bounds active provider calls without a queue. Timeout/disconnect/shutdown abort upstream work and retain capacity until it settles. OPENAI_MAX_RETRIES defaults to 0 and is capped at 2; retries share the deadline and can add usage. RATE_LIMIT_MAX/RATE_LIMIT_WINDOW_MS are one shared in-memory fixed-window bucket for this private server, including unauthorized chat attempts. Restarts and multiple instances reset/multiply the limit. This is not a persistent global spending cap. Public visitor/session controls and persistent total usage budgets are required in Phase 2 before launch.
+REQUEST_TIMEOUT_MS is an overall chat deadline from onRequest, also used for receiving HTTP requests; MAX_CONCURRENCY bounds active provider calls without a queue. Timeout/disconnect/shutdown abort upstream work and retain capacity until it settles. OPENAI_MAX_RETRIES must be 0 under persistent attempt controls; both SDK and proxy generation retries are disabled. RATE_LIMIT_MAX/RATE_LIMIT_WINDOW_MS are one shared in-memory fixed-window bucket for this private server, including unauthorized chat attempts. Restarts and multiple instances reset/multiply the limit. This is not a persistent global spending cap. Persistent aggregate/per-session attempt controls are now implemented; see docs/public-demo.md for defaults and limitations.
 
 Logs contain generated request IDs, status, duration and token usage when available, never full conversations, profile content, query strings, bearer secrets, API keys or raw provider errors by default. SDK logging is disabled. API failures are sanitized. No server chat history is persisted.
 
@@ -84,10 +85,12 @@ docker run --rm --name personacore-local -p 127.0.0.1:3001:3001 --env-file .env 
 
 The production image uses Node 22 Alpine, npm ci with the lockfile, a separate TypeScript build stage, production dependencies only, a nonroot user, only runtime knowledge and /health healthcheck. For the container, set NODE_ENV=production, PROVIDER=openai and KNOWLEDGE_DIR=/app/knowledge/runtime (override relative development values in an env file); supply CHAT_BEARER_SECRET, OPENAI_API_KEY and OPENAI_MODEL through Coolify secrets. PORT defaults to 3001; bind is 0.0.0.0. Choose the Dockerfile build pack and /health on the configured port. Keep ingress/private-network access limited to the portfolio server; avoid a public service domain. For owner-managed knowledge, mount a read-only directory at the configured absolute path and restart to load reviewed changes. Do not mount whole repositories/home directories.
 
+Production also requires DATA_DIR=/app/data on a retained local volume; see docs/public-demo.md for UID/GID 1000 permissions and single-instance deployment. Keep CHAT_ENABLED=false before activation.
+
 SIGTERM/SIGINT trigger graceful close and abort active provider work. SHUTDOWN_TIMEOUT_MS defaults to 25 seconds; configure the platform stop grace period longer than this. /health is process health, not a paid provider probe. No deployment or production Directus change has been performed.
 
 ## Next work
 
-See [the Phase 2 roadmap](docs/roadmap.md), [behavioural evaluation guidance](docs/evaluations.md) and [validation results](docs/validation.md). Phase 2 covers reviewed owner context, portfolio proxy/UI, documentation sync, persistent public usage controls and the case study. Current deterministic tests cannot prove actual model correctness. No paid model call is part of normal development validation.
+See [the Phase 2 roadmap](docs/roadmap.md), [behavioural evaluation guidance](docs/evaluations.md) and [validation results](docs/validation.md). Phase 2 implements portfolio proxy/UI and persistent attempt controls. Phase 3 covers reviewed owner context, documentation ingestion, the case study and real-model/abuse evaluation. Current deterministic tests cannot prove actual model correctness. No paid model call is part of normal development validation.
 
 Suggested commit message: feat: add PersonaCore service and curated knowledge foundation

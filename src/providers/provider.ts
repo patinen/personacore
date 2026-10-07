@@ -4,6 +4,7 @@ export type ProviderInput = { request: ChatRequest; knowledge: Knowledge; signal
 export type ProviderResult = ModelAnswer & { usage?: TokenUsage };
 export interface ChatProvider {
   readonly kind: 'openai' | 'fake';
+  isAvailable(): boolean;
   generate(input: ProviderInput): Promise<ProviderResult>;
 }
 export class ProviderUnavailable extends Error {}
