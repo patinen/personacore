@@ -129,13 +129,20 @@ export function promote(rawPack: unknown, rawBatch: unknown, allowlist: Source[]
 
   if (old && (!old.source.github || old.category !== 'projects' ||
     old.source.github.repository !== result.source.repository || old.source.github.path !== result.source.path || old.source.github.heading !== result.source.heading)) throw new Error('Stable ID conflict; owner knowledge cannot be replaced');
-  if (old?.source.github && old.source.github.retrievedAt > batch.retrievedAt) throw new Error('Stale candidate batch');
+  // The original document provenance remains unchanged on retirement.
+  // Admission compares against the latest reviewed observation, not only that document.
+  const observation = old?.category === 'projects' ? old.ingestionObservation : undefined;
+  const latest = Math.max(Date.parse(old?.source.github?.retrievedAt ?? '1970-01-01T00:00:00Z'),
+    Date.parse(observation?.retrievedAt ?? '1970-01-01T00:00:00Z'));
+  const incoming = Date.parse(batch.retrievedAt);
+  if (incoming < latest || (observation?.status === 'removed' && !options.retire && incoming <= latest)) throw new Error('Stale candidate batch');
+
   const review = { reviewedBy: options.reviewer.trim(), reviewedAt: options.reviewDate };
   let change: string;
   let replacement;
   if (options.retire) {
     if (result.status !== 'removed' || !old || !result.commitSha) throw new Error('Retirement requires reviewed 404 at immutable revision and existing imported entry');
-    replacement = entrySchema.parse({ ...old, status: 'draft', review });
+    replacement = entrySchema.parse({ ...old, status: 'draft', review, ingestionObservation: { retrievedAt: batch.retrievedAt, commitSha: result.commitSha, status: 'removed' } });
     change = 'retired';
   } else {
     if ((result.status !== 'available' && !(result.status === 'oversized' && options.summary)) || !result.candidate) throw new Error('No promotable candidate; narrow selection or prepare a reviewed draft');
@@ -144,7 +151,7 @@ export function promote(rawPack: unknown, rawBatch: unknown, allowlist: Source[]
       candidate.section !== result.source.section || candidate.status !== 'draft' || candidate.review ||
       github.repository !== result.source.repository || github.path !== result.source.path || github.heading !== result.source.heading ||
       github.commitSha !== result.commitSha || github.retrievedAt !== batch.retrievedAt) throw new Error('Candidate provenance mismatch');
-    replacement = entrySchema.parse({ ...candidate, content: options.summary ?? candidate.content, status: 'published', review });
+    replacement = entrySchema.parse({ ...candidate, content: options.summary ?? candidate.content, status: 'published', review, ingestionObservation: { retrievedAt: batch.retrievedAt, commitSha: result.commitSha, status: 'available' } });
     change = old ? old.source.github?.documentHash === github.documentHash ? 'same-source' : 'updated' : 'added';
   }
   const next = packSchema.parse({ ...pack, version: options.version, entries: [...pack.entries.filter(e => e.id !== options.id), replacement] });

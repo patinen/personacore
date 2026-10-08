@@ -35,7 +35,10 @@ const base = z.object({
 });
 const ordinary = base.extend({ category: z.enum(['profile', 'working_style', 'preferences', 'services']) });
 const skill = base.extend({ category: z.literal('skills'), technology: z.string().min(1), experience: z.string().max(4000), independence: z.string().max(2000), evidence: z.array(z.string().min(1)).max(20), limitations: z.array(z.string().min(1)).max(20) });
-const project = base.extend({ category: z.literal('projects'), projectSlug: id, section: z.enum(['overview', 'architecture', 'system_flow', 'engineering', 'implementation', 'interface']) });
+const project = base.extend({ ingestionObservation: z.object({
+  retrievedAt: z.iso.datetime(), commitSha: z.string().regex(/^[a-f0-9]{40}$/),
+  status: z.enum(['available', 'removed']),
+}).strict().optional(), category: z.literal('projects'), projectSlug: id, section: z.enum(['overview', 'architecture', 'system_flow', 'engineering', 'implementation', 'interface']) });
 const voice = base.extend({ category: z.literal('voice'), style: z.object({ concise: z.boolean(), tone: z.string().min(1).max(1000), languages: z.array(z.enum(['fi', 'en'])).min(1) }).strict() });
 export const entrySchema = z.discriminatedUnion('category', [ordinary.strict(), skill.strict(), project.strict(), voice.strict()]).superRefine((entry, ctx) => {
   if (entry.status === 'published' && (!entry.content.trim() || !entry.review)) ctx.addIssue({ code: 'custom', message: 'Published entries require content and owner review metadata' });

@@ -145,3 +145,37 @@ test('context overflow fails without mutating original pack', async () => {
   assert.throws(() => promote(original, candidate, manifest.sources, { ...review, maxContextChars: 1 }), /exceeds MAX_CONTEXT_CHARS/);
   assert.equal(JSON.stringify(original), before);
 });
+
+test('retirement blocks resurrection from an older available batch while preserving document provenance', async () => {
+  const available = await fetchDrafts([source], manifest.sources, { ...mock(), now: () => new Date('2026-10-08T10:00:00Z') });
+  const first = promote(rawPack(), available, manifest.sources, review);
+  const removed = await fetchDrafts([source], manifest.sources, { ...mock('', nextSha, 404), now: () => new Date('2026-10-08T12:00:00Z') });
+  const retired = promote(first.pack, removed, manifest.sources, { ...review, version: 'retired', retire: true });
+  const persisted = packSchema.parse(JSON.parse(JSON.stringify(retired.pack)));
+  const retiredEntry = persisted.entries[0]!;
+  assert.equal(retiredEntry.category, 'projects');
+  if (retiredEntry.category === 'projects') assert.deepEqual(retiredEntry.ingestionObservation, { retrievedAt: '2026-10-08T12:00:00.000Z', commitSha: nextSha, status: 'removed' });
+  assert.deepEqual(retiredEntry.source, first.pack.entries[0]!.source);
+  assert.equal(retired.pack.entries[0]!.content, first.pack.entries[0]!.content);
+  assert.throws(() => promote(persisted, available, manifest.sources, { ...review, version: 'resurrection' }), /Stale candidate batch/);
+});
+test('a genuinely newer reviewed available candidate restores retirement under the same stable ID', async () => {
+  const available = await fetchDrafts([source], manifest.sources, { ...mock(), now: () => new Date('2026-10-08T10:00:00Z') });
+  const first = promote(rawPack(), available, manifest.sources, review);
+  const removed = await fetchDrafts([source], manifest.sources, { ...mock('', nextSha, 404), now: () => new Date('2026-10-08T12:00:00Z') });
+  const retired = promote(first.pack, removed, manifest.sources, { ...review, version: 'retired', retire: true });
+  const simultaneous = await fetchDrafts([source], manifest.sources, { ...mock(), now: () => new Date('2026-10-08T12:00:00Z') });
+  assert.throws(() => promote(retired.pack, simultaneous, manifest.sources, { ...review, version: 'same-time' }), /Stale candidate batch/);
+  const newer = await fetchDrafts([source], manifest.sources, { ...mock(text + '\nNew revision.', 'c'.repeat(40)), now: () => new Date('2026-10-08T13:00:00Z') });
+  const restored = promote(retired.pack, newer, manifest.sources, { ...review, version: 'restored', reviewer: 'Restoration reviewer' });
+  assert.equal(restored.publishedEntries, 1);
+  assert.equal(restored.pack.entries.length, 1);
+  assert.equal(restored.pack.entries[0]!.id, source.id);
+  assert.equal(restored.pack.entries[0]!.status, 'published');
+  assert.equal(restored.pack.entries[0]!.source.github!.commitSha, 'c'.repeat(40));
+  assert.equal(restored.pack.entries[0]!.source.github!.retrievedAt, '2026-10-08T13:00:00.000Z');
+  assert.equal(restored.pack.entries[0]!.review!.reviewedBy, 'Restoration reviewer');
+  const restoredEntry = restored.pack.entries[0]!;
+  if (restoredEntry.category === 'projects') assert.deepEqual(restoredEntry.ingestionObservation, { retrievedAt: '2026-10-08T13:00:00.000Z', commitSha: 'c'.repeat(40), status: 'available' });
+  assert.throws(() => promote(restored.pack, removed, manifest.sources, { ...review, version: 'stale-retirement', retire: true }), /Stale candidate batch/);
+});
