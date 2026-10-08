@@ -15,7 +15,9 @@
     "start": "node --env-file-if-exists=.env dist/server.js",
     "eval:live": "node --env-file-if-exists=.env --import tsx scripts/evaluate-live.ts",
     "usage:inspect": "node scripts/usage.mjs",
-    "eval:plan": "node --import tsx scripts/evaluate-live.ts --dry-run"
+    "eval:plan": "node --import tsx scripts/evaluate-live.ts --dry-run",
+    "docs:fetch": "node --import tsx scripts/ingest-projects.ts fetch",
+    "docs:promote": "node --import tsx scripts/ingest-projects.ts promote"
   },
   "dependencies": {
     "fastify": "^5.6.0",

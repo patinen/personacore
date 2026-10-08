@@ -93,3 +93,21 @@ No paid evaluation, activation, CMS changes, deployment, commits or pushes. Dete
 Included collaboration arrangements, remote/international openness, technology tradeoffs and agent interest with explicit experience/tool boundaries. Replaced the earlier employment-arrangements gap; availability, schedules, rates and project commitments remain unconfirmed. Added the two optional voice examples without mandatory repetition.
 
 Pack 2026-10-08.2: 22 published entries, 18,581 context characters within the unchanged 30,000 budget. Runtime rubrics now number 54, with 3 separate synthetic cases. Lint, typecheck, all 68 deterministic tests, production build and offline selected planning passed on Node 22.17.1. Portfolio remains clean on feat/personacore-chat. No paid calls, activation, CMS mutation, deployment or commits. This supplement remains in the same uncommitted Phase 3A scope.
+
+## Phase 3B reviewed GitHub ingestion — 2026-10-08
+
+Started clean at be94c92b7cdd89c90e0bf0f2cf2a6e29b7a288eb. No applicable AGENTS.md was found. Scope is PersonaCore only; portfolio remains clean at 57e656787aa200763ce1698d4dedf61ca6e94a6b on feat/personacore-chat.
+
+Implemented the explicit repository/path/heading manifest, bounded immutable GitHub fetch-to-draft workflow, compatible source.github provenance, individual offline promotion preview/apply with review identity/date/version, stable-ID updates/retirement and context-budget validation. Instructions already treat documentation as untrusted and distinguish project statements from personal evidence; no instruction/version change was necessary. Six Finnish/English documentation evaluations use a separate fictional fixture lane.
+
+Node v22.17.1: lint, typecheck, full deterministic suite (82 passed, zero failures), production build and offline documentation evaluation plan passed. Fourteen new mocked ingestion/promotion tests cover immutable pinning, exact allowlist, public repository enforcement, failure/timeout/size limits, drafts, provenance, manual summaries, updates/removals, owner preservation and overflow. Existing route-security, usage, rejected-response accounting and cancellation regressions remain passing. Initial test-only async syntax issue was corrected before the successful run.
+
+A small public fetch succeeded for all five manifest selections, saving ingestion/drafts/2026-10-08T11-46-46-998Z.json. Both PersonaCore paths share one resolved SHA. Sources and revisions:
+- patinen/secureshare README.md / Architecture: d56eacf35045d786cac19fc0a4fd26057646000e
+- patinen/projectpulse README.md / Architecture: edbcd54c462cb4c2e997d1bff21a540964364c4d
+- patinen/statuscore README.md / Architecture: 1ba527b2bafc3f00d8002b1727bcf515c8b23ade
+- patinen/personacore README.md / API and docs/api.md / PersonaCore API v1: be94c92b7cdd89c90e0bf0f2cf2a6e29b7a288eb
+
+Offline CLI promotion preview succeeded for SecureShare with an explicitly non-owner validation reviewer; --apply was never used. The runtime pack remains byte-for-byte unchanged (22 published entries, 18,581 context characters). All five raw excerpts together would be approximately 32,032 characters with a short reviewer label, exceeding 30,000; particularly the 5,818-character API-contract selection needs narrower selection/manual summary if all sources are desired. Exact size is checked individually at every promotion.
+
+All new imported entries remain draft, separate from runtime. No paid calls or real-model behaviour tests, commits, pushes, activation, Directus changes, production configuration changes or deployment occurred.

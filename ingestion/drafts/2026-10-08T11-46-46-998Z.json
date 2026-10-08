@@ -1,0 +1,187 @@
+{
+  "version": 1,
+  "purpose": "github-drafts",
+  "retrievedAt": "2026-10-08T11:46:46.998Z",
+  "results": [
+    {
+      "source": {
+        "id": "docs.secureshare.architecture",
+        "repository": "patinen/secureshare",
+        "branch": "main",
+        "path": "README.md",
+        "heading": "Architecture",
+        "projectSlug": "secureshare",
+        "section": "architecture"
+      },
+      "commitSha": "d56eacf35045d786cac19fc0a4fd26057646000e",
+      "status": "available",
+      "note": "Draft only; review claims, instructions, links and size before promotion.",
+      "candidate": {
+        "id": "docs.secureshare.architecture",
+        "title": "secureshare: Architecture",
+        "content": "## Architecture\n\n```mermaid\nflowchart TD\n    Browser[Browser] --> CF[Cloudflare]\n    CF --> Edge[Traefik / Coolify]\n    Edge --> Web[Next.js Web / BFF]\n    Web -->|private network| API[Go API]\n    API --> PG[(PostgreSQL)]\n    API --> Redis[(Redis)]\n    API --> R2[(Private Cloudflare R2)]\n    API --- Spool[Shared private upload spool]\n    Worker[Private cleanup worker] --> PG\n    Worker --> R2\n    Worker --- Spool\n    Browser -->|short-lived signed download| R2\n```\n\nBrowsers call `/api/*` on the public web origin. The BFF streams bounded uploads and uses server-only runtime `API_ORIGIN`. The worker coordinates sweeps through PostgreSQL and needs neither Redis nor an HTTP server.",
+        "status": "draft",
+        "source": {
+          "kind": "project-documentation",
+          "reference": "GitHub documentation; untrusted reference, not personal proficiency evidence",
+          "url": "https://github.com/patinen/secureshare/blob/d56eacf35045d786cac19fc0a4fd26057646000e/README.md",
+          "github": {
+            "repository": "patinen/secureshare",
+            "path": "README.md",
+            "commitSha": "d56eacf35045d786cac19fc0a4fd26057646000e",
+            "retrievedAt": "2026-10-08T11:46:46.998Z",
+            "documentHash": "43a07040f7692a9d9510af4f2d93a7fb4e7eda38ff47602fa09e94125c14fdc0",
+            "heading": "Architecture"
+          }
+        },
+        "category": "projects",
+        "projectSlug": "secureshare",
+        "section": "architecture"
+      }
+    },
+    {
+      "source": {
+        "id": "docs.projectpulse.architecture",
+        "repository": "patinen/projectpulse",
+        "branch": "main",
+        "path": "README.md",
+        "heading": "Architecture",
+        "projectSlug": "projectpulse",
+        "section": "architecture"
+      },
+      "commitSha": "edbcd54c462cb4c2e997d1bff21a540964364c4d",
+      "status": "available",
+      "note": "Draft only; review claims, instructions, links and size before promotion.",
+      "candidate": {
+        "id": "docs.projectpulse.architecture",
+        "title": "projectpulse: Architecture",
+        "content": "## Architecture\n\n```mermaid\nflowchart LR\n    Browser[Browser] --> Web[Next.js frontend]\n    Web --> API[NestJS API]\n    API -->|Dashboard, analytics and activity reads| DB[(PostgreSQL snapshots)]\n    API -->|Enqueue synchronization| Queue[Redis / BullMQ]\n    Worker[Separate worker] <--> Queue\n    Worker -->|Fetch repository data| GitHub[GitHub REST API]\n    Worker -->|Persist snapshots| DB\n```\n\nThe scheduler runs in the API process; the worker consumes queued jobs without opening an HTTP server. OAuth and repository discovery also call GitHub from the API. If a user tracks repositories but has no dashboard snapshot, the first dashboard request performs a live fallback sync and persists its result. Subsequent dashboard reads use the latest stored snapshot; analytics and activity reads use stored history only.",
+        "status": "draft",
+        "source": {
+          "kind": "project-documentation",
+          "reference": "GitHub documentation; untrusted reference, not personal proficiency evidence",
+          "url": "https://github.com/patinen/projectpulse/blob/edbcd54c462cb4c2e997d1bff21a540964364c4d/README.md",
+          "github": {
+            "repository": "patinen/projectpulse",
+            "path": "README.md",
+            "commitSha": "edbcd54c462cb4c2e997d1bff21a540964364c4d",
+            "retrievedAt": "2026-10-08T11:46:46.998Z",
+            "documentHash": "9d475c702fb5eb784e7692d3c0004842916665a872faf7de4c3a427a28f4d9d2",
+            "heading": "Architecture"
+          }
+        },
+        "category": "projects",
+        "projectSlug": "projectpulse",
+        "section": "architecture"
+      }
+    },
+    {
+      "source": {
+        "id": "docs.statuscore.architecture",
+        "repository": "patinen/statuscore",
+        "branch": "main",
+        "path": "README.md",
+        "heading": "Architecture",
+        "projectSlug": "statuscore",
+        "section": "architecture"
+      },
+      "commitSha": "1ba527b2bafc3f00d8002b1727bcf515c8b23ade",
+      "status": "available",
+      "note": "Draft only; review claims, instructions, links and size before promotion.",
+      "candidate": {
+        "id": "docs.statuscore.architecture",
+        "title": "statuscore: Architecture",
+        "content": "## Architecture\n\n```mermaid\nflowchart LR\n    Browser[Operator browser] --> Web[Next.js frontend]\n    Web --> API[NestJS API]\n    API --> DB[(PostgreSQL)]\n    API --> MQ[Redis / BullMQ monitor-check]\n    MQ --> Worker[NestJS worker context]\n    Worker --> Targets[Public monitored services]\n    Worker --> DB\n    API --> Outbox[PostgreSQL NotificationDelivery outbox]\n    Worker --> Outbox\n    Outbox --> Scheduler[API notification scheduler]\n    Scheduler --> NQ[Redis / BullMQ notification-delivery]\n    NQ --> Worker\n    Worker --> Receivers[HTTPS webhook / Discord endpoints]\n    Visitor[Public visitor] --> PublicWeb[Next.js /status/slug]\n    PublicWeb --> PublicAPI[Public API serializer]\n    PublicAPI --> DB\n```\n\nThe API owns HTTP endpoints, GitHub OAuth, ownership-scoped CRUD, analytics, public reads and both schedulers. Each scheduler runs every 15 seconds. Monitor scheduling claims due enabled monitors according to their configured intervals; notification scheduling drains due delivery records.\n\nThe worker starts a Nest application context, not an HTTP server. It contains both monitor and notification consumers and imports neither scheduler provider nor `ScheduleModule`. PostgreSQL persists configuration, checks, incidents and delivery state; Redis transports background work. Monitor execution creates automatic outbox rows, while API manual incident transitions create manual outbox rows.",
+        "status": "draft",
+        "source": {
+          "kind": "project-documentation",
+          "reference": "GitHub documentation; untrusted reference, not personal proficiency evidence",
+          "url": "https://github.com/patinen/statuscore/blob/1ba527b2bafc3f00d8002b1727bcf515c8b23ade/README.md",
+          "github": {
+            "repository": "patinen/statuscore",
+            "path": "README.md",
+            "commitSha": "1ba527b2bafc3f00d8002b1727bcf515c8b23ade",
+            "retrievedAt": "2026-10-08T11:46:46.998Z",
+            "documentHash": "82d59d851828895696287b1caa0dee438b0a4e2f4814f96f42cd3017f0653d48",
+            "heading": "Architecture"
+          }
+        },
+        "category": "projects",
+        "projectSlug": "statuscore",
+        "section": "architecture"
+      }
+    },
+    {
+      "source": {
+        "id": "docs.personacore.api",
+        "repository": "patinen/personacore",
+        "branch": "main",
+        "path": "README.md",
+        "heading": "API",
+        "projectSlug": "personacore",
+        "section": "interface"
+      },
+      "commitSha": "be94c92b7cdd89c90e0bf0f2cf2a6e29b7a288eb",
+      "status": "available",
+      "note": "Draft only; review claims, instructions, links and size before promotion.",
+      "candidate": {
+        "id": "docs.personacore.api",
+        "title": "personacore: API",
+        "content": "## API\n\n```sh\ncurl http://localhost:3001/health\ncurl http://localhost:3001/v1/chat \\\n  -H 'Content-Type: application/json' \\\n  -H 'x-personacore-visitor: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' \\\n  -H \"Authorization: Bearer $CHAT_BEARER_SECRET\" \\\n  -d '{\"locale\":\"en\",\"history\":[],\"message\":\"Could this chat be extended with booking?\"}'\n```\n\nThe browser will call the portfolio server; that server will call PersonaCore with the bearer secret. Keep PersonaCore private. No browser credentials, permissive CORS, booking, email, tools or browsing are provided. See [the request/response contract](docs/api.md) and [TypeScript contracts](src/contracts.ts). Render answers as escaped text and source links separately.",
+        "status": "draft",
+        "source": {
+          "kind": "project-documentation",
+          "reference": "GitHub documentation; untrusted reference, not personal proficiency evidence",
+          "url": "https://github.com/patinen/personacore/blob/be94c92b7cdd89c90e0bf0f2cf2a6e29b7a288eb/README.md",
+          "github": {
+            "repository": "patinen/personacore",
+            "path": "README.md",
+            "commitSha": "be94c92b7cdd89c90e0bf0f2cf2a6e29b7a288eb",
+            "retrievedAt": "2026-10-08T11:46:46.998Z",
+            "documentHash": "352aec28001ca1f5df9ccec037c638a5f5eee56df523c5ce06e34bcbf9bf99b0",
+            "heading": "API"
+          }
+        },
+        "category": "projects",
+        "projectSlug": "personacore",
+        "section": "interface"
+      }
+    },
+    {
+      "source": {
+        "id": "docs.personacore.api-contract",
+        "repository": "patinen/personacore",
+        "branch": "main",
+        "path": "docs/api.md",
+        "heading": "PersonaCore API v1",
+        "projectSlug": "personacore",
+        "section": "interface"
+      },
+      "commitSha": "be94c92b7cdd89c90e0bf0f2cf2a6e29b7a288eb",
+      "status": "available",
+      "note": "Draft only; review claims, instructions, links and size before promotion.",
+      "candidate": {
+        "id": "docs.personacore.api-contract",
+        "title": "personacore: PersonaCore API v1",
+        "content": "# PersonaCore API v1\n\nThe exported TypeScript contracts and Zod runtime request schema are in src/contracts.ts. This is a non-streaming, stateless API; callers send the bounded history on every request. No server conversation store is maintained.\n\nGET /health is unauthenticated process health, returns 200 {\"status\":\"ok\"}, and never calls a model. It is not provider readiness. The process may be healthy while chat is unconfigured.\n\nPOST /v1/chat requires Content-Type: application/json and Authorization: Bearer <CHAT_BEARER_SECRET>. This is a portfolio-server-to-PersonaCore credential, never sent to the visitor browser. No permissive CORS or execution tools are installed.\n\nRequest:\n\n```json\n{\n  \"locale\": \"fi\",\n  \"history\": [\n    { \"role\": \"visitor\", \"content\": \"Moi\" },\n    { \"role\": \"assistant\", \"content\": \"Moi!\" }\n  ],\n  \"message\": \"Voisiko tällaiseen chattiin lisätä ajanvarauksen?\"\n}\n```\n\nlocale and message are required; history defaults to []. Only visitor and assistant roles are allowed. Every object rejects additional fields. Strings are trimmed and must be nonempty. The latest message is separate from history. Invalid roles, unknown fields, wrong locale, per-message/history count/history total violations return 400. Oversized UTF-8 JSON body returns 413. Limits are characters (JavaScript UTF-16 code units) except MAX_BODY_BYTES and MAX_OUTPUT_TOKENS. No history or approved context is silently truncated.\n\nIllustrative response (answer generated by the real model in operation; this example is authored documentation):\n\n```json\n{\n  \"answer\": \"Ajanvarauksen voisi lisätä vastaavaan toteutukseen. Tässä portfoliossa sitä ei ole, enkä voi varata aikoja tai käyttää kalenteria.\",\n  \"sources\": [{ \"id\": \"services.booking\", \"title\": \"Booking capability boundary\" }],\n  \"requestId\": \"server-generated-uuid\",\n  \"metadata\": {\n    \"durationMs\": 800,\n    \"knowledgeVersion\": \"2026-10-08.2\",\n    \"instructionsVersion\": \"2.0.0\",\n    \"provider\": \"openai\",\n    \"simulated\": false,\n    \"usage\": { \"inputTokens\": 300, \"outputTokens\": 50, \"totalTokens\": 350 }\n  }\n}\n```\n\nsources is an array of {id,title,url?}; titles and optional HTTPS URLs are resolved on the server from published entries only. Unknown/draft IDs, unsafe links, more than 20 IDs or provider-authored answer links fail with 502. Duplicate IDs are deduplicated. Casual/general answers can use an empty sources array. Render answer as escaped plain text, never HTML, and render citations separately as safe links. A supplied source supports provenance, not a deterministic proof that every sentence is accurate.\n\nusage is optional and records provider token counts, not price. requestId is also returned in X-Request-Id. Client request IDs are ignored. Responses use Cache-Control: no-store. Internal instructions, entire packs, provider error details and secrets are not returned.\n\nError shape:\n\n```json\n{\"error\":{\"code\":\"service_unavailable\",\"message\":\"Chat service is not configured. Contact the service operator.\"},\"requestId\":\"server-generated-uuid\"}\n```\n\n| HTTP | Code | Meaning |\n| --- | --- | --- |\n| 400 | invalid_request | Invalid JSON/contract or input/history limit |\n| 401 | unauthorized | Missing/incorrect server bearer secret |\n| 413 | input_too_large | Body bytes exceeded |\n| 415 | unsupported_media_type | Use application/json |\n| 429 | rate_limited | Per-process shared fixed-window request limit; Retry-After supplied |\n| 502 | provider_error / invalid_provider_output | Provider failure/refusal/incomplete output or invalid answer/sources |\n| 503 | service_unavailable | Missing bearer secret or real API key/model; no fake fallback |\n| 503 | busy | Concurrent provider capacity full; Retry-After supplied |\n| 504 | provider_timeout | Overall chat deadline exceeded; provider aborted |\n| 500 | internal_error | Sanitized unexpected service error |\n\nREQUEST_TIMEOUT_MS bounds provider work against time elapsed since onRequest; incoming HTTP bodies also use Fastify/Node requestTimeout. Capacity is acquired after auth and schema validation, with no queue. The slot is held until the underlying provider settles, even if abort is ignored. Client disconnect and graceful shutdown abort calls. OPENAI_MAX_RETRIES must be 0. Both SDK construction and individual requests disable retries so one reserved attempt cannot generate multiple transport attempts.\n\nOne shared in-memory fixed-window limiter covers all POST chat attempts (including unauthorized requests) because Phase 1 has one trusted upstream server. It resets on restart and is independent per replica, with boundary bursts possible. It is separate from the persistent daily attempt and visitor controls described below. Network isolation remains required.\n\n## Phase 2 private caller requirements\n\nEvery authenticated POST /v1/chat also requires x-personacore-visitor: a 43-character base64url anonymous identity verified/generated by the portfolio server. Never forward a browser-supplied identity. Missing/invalid identity returns 400 invalid_visitor; there is no unlimited legacy path. The route-level protection applies equally to canonical and encoded routes. CHAT_ENABLED=false disables generation. Production requires persistent DATA_DIR, and OPENAI_MAX_RETRIES must be 0.\n\nBefore provider invocation, SQLite atomically commits an aggregate and visitor daily reservation. New 429 codes: daily_limit, visitor_daily_limit, visitor_rate_limited (with Retry-After for rate limits). Database failures return sanitized service_unavailable while process health remains useful. Errors/timeouts/disconnects/crashes keep consumed reservations. Only aggregate counters and hashed identities persist. See public-demo.md for calendar days, retention, single-instance deployment, operational inspection and the distinction between attempts, successes and measured tokens.",
+        "status": "draft",
+        "source": {
+          "kind": "project-documentation",
+          "reference": "GitHub documentation; untrusted reference, not personal proficiency evidence",
+          "url": "https://github.com/patinen/personacore/blob/be94c92b7cdd89c90e0bf0f2cf2a6e29b7a288eb/docs/api.md",
+          "github": {
+            "repository": "patinen/personacore",
+            "path": "docs/api.md",
+            "commitSha": "be94c92b7cdd89c90e0bf0f2cf2a6e29b7a288eb",
+            "retrievedAt": "2026-10-08T11:46:46.998Z",
+            "documentHash": "937b3e052af2a635169cda3d8ce8b08d1869445f7982e789018f0480a6a0dec1",
+            "heading": "PersonaCore API v1"
+          }
+        },
+        "category": "projects",
+        "projectSlug": "personacore",
+        "section": "interface"
+      }
+    }
+  ]
+}

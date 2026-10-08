@@ -14,3 +14,5 @@ Unknown: institution/exact qualification title/dates/employers, numerical experi
 Deliberately private: exact age/address/location, private individuals/family affairs, health/medication, finances/debts, private conversations and cat identifiers. Never store excluded values in drafts or fixtures. The address-joke example is not a location fact and was omitted from reference knowledge.
 
 Portfolio/CMS, documentation sync, case study, activation, deployment and paid evaluation remain outside Phase 3A.
+
+For documentation-backed project entries, follow [the explicit GitHub authoring workflow](project-ingestion.md). Preserve owner interview entries separately; documentation never establishes personal proficiency or sole authorship.

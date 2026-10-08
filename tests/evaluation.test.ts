@@ -15,6 +15,7 @@ test('grounded cases validate, remain bilingual and keep synthetic packs separat
     for (const locale of ['fi', 'en']) assert.ok(selected.some(c => c.id === topic + '-' + locale));
   }
   assert.equal(selectCases(cases, true).length, 3);
+  assert.equal(selectCases(cases, false, undefined, true).length, 6);
   assert.deepEqual(selectCases(cases, false, ['pets-fi']).map(c => c.id), ['pets-fi']);
   assert.throws(() => selectCases(cases, false, ['known-colour']));
   assert.throws(() => selectCases(cases, false, ['missing']));

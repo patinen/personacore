@@ -15,10 +15,14 @@ export async function main(args = process.argv.slice(2), env = process.env) {
   if (!dry && (env.PERSONACORE_LIVE_EVAL !== '1' || !args.includes('--allow-paid'))) throw new Error('Paid opt-in missing');
   const config = loadConfig({ ...env, KNOWLEDGE_DIR: env.KNOWLEDGE_DIR ?? resolve('knowledge/runtime') });
   const synthetic = args.includes('--synthetic');
+  const documentation = args.includes('--documentation');
+  if (synthetic && documentation) throw new Error('Choose only one fixture mode');
   const selected = args.find(arg => arg.startsWith('--cases='))?.slice(8).split(',');
-  const cases = selectCases(casesSchema.parse(JSON.parse(await readFile(resolve('evals/cases.json'), 'utf8'))), synthetic, selected);
+  const cases = selectCases(casesSchema.parse(JSON.parse(await readFile(resolve('evals/cases.json'), 'utf8'))), synthetic, selected, documentation);
   validateCases(cases, config);
-  const knowledge = synthetic
+  const knowledge = documentation
+    ? prepareKnowledge(JSON.parse(await readFile(resolve('tests/fixtures/ingestion/evaluation-pack.json'), 'utf8')), config.MAX_CONTEXT_CHARS, true)
+    : synthetic
     ? prepareKnowledge(JSON.parse(await readFile(resolve('tests/fixtures/knowledge/pack.json'), 'utf8')), config.MAX_CONTEXT_CHARS, true)
     : await loadKnowledge(config.KNOWLEDGE_DIR, config.MAX_CONTEXT_CHARS);
   let used = 0;
@@ -30,7 +34,7 @@ export async function main(args = process.argv.slice(2), env = process.env) {
   }
   const paceArg = args.find(arg => arg.startsWith('--pace-ms='));
   const plan = admissionPlan(config, cases.length, used, paceArg ? Number(paceArg.slice(10)) : undefined);
-  console.log(JSON.stringify({ mode: dry ? 'OFFLINE_PLAN' : 'PAID_PREFLIGHT', knowledgeVersion: knowledge.version, instructionsVersion, contextChars: knowledge.context.length, synthetic, cases, admission: plan, requirements: ['PROVIDER=openai', 'OPENAI_API_KEY', 'OPENAI_MODEL', 'CHAT_BEARER_SECRET', 'zero retries', 'CHAT_ENABLED=true', 'production DATA_DIR; one instance', 'both paid opt-in switches'], note: 'Read-only counters are advisory; concurrent activity can change remaining allowance. Each case still passes normal admission.' }, null, 2));
+  console.log(JSON.stringify({ mode: dry ? 'OFFLINE_PLAN' : 'PAID_PREFLIGHT', knowledgeVersion: knowledge.version, instructionsVersion, contextChars: knowledge.context.length, synthetic, documentation, cases, admission: plan, requirements: ['PROVIDER=openai', 'OPENAI_API_KEY', 'OPENAI_MODEL', 'CHAT_BEARER_SECRET', 'zero retries', 'CHAT_ENABLED=true', 'production DATA_DIR; one instance', 'both paid opt-in switches'], note: 'Read-only counters are advisory; concurrent activity can change remaining allowance. Each case still passes normal admission.' }, null, 2));
   if (dry) return;
   if (plan.blockers.length || config.PROVIDER !== 'openai' || !config.OPENAI_API_KEY || !config.OPENAI_MODEL || !config.CHAT_BEARER_SECRET) throw new Error('Preflight blocked');
   const visitor = randomBytes(32).toString('base64url');

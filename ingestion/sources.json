@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "docs.secureshare.architecture",
+      "repository": "patinen/secureshare",
+      "branch": "main",
+      "path": "README.md",
+      "heading": "Architecture",
+      "projectSlug": "secureshare",
+      "section": "architecture"
+    },
+    {
+      "id": "docs.projectpulse.architecture",
+      "repository": "patinen/projectpulse",
+      "branch": "main",
+      "path": "README.md",
+      "heading": "Architecture",
+      "projectSlug": "projectpulse",
+      "section": "architecture"
+    },
+    {
+      "id": "docs.statuscore.architecture",
+      "repository": "patinen/statuscore",
+      "branch": "main",
+      "path": "README.md",
+      "heading": "Architecture",
+      "projectSlug": "statuscore",
+      "section": "architecture"
+    },
+    {
+      "id": "docs.personacore.api",
+      "repository": "patinen/personacore",
+      "branch": "main",
+      "path": "README.md",
+      "heading": "API",
+      "projectSlug": "personacore",
+      "section": "interface"
+    },
+    {
+      "id": "docs.personacore.api-contract",
+      "repository": "patinen/personacore",
+      "branch": "main",
+      "path": "docs/api.md",
+      "heading": "PersonaCore API v1",
+      "projectSlug": "personacore",
+      "section": "interface"
+    }
+  ]
+}

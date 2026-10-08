@@ -10,11 +10,24 @@ export const safeUrl = z.string().max(2048).refine(value => {
   } catch { return false; }
 }, 'Sources must use HTTPS without credentials or control characters');
 const id = z.string().regex(/^[a-z][a-z0-9._-]{0,79}$/);
+export const githubProvenanceSchema = z.object({
+  repository: z.string().regex(/^patinen\/(secureshare|projectpulse|statuscore|personacore)$/),
+  path: z.string().regex(/^(README\.md|docs\/[a-zA-Z0-9._-]+\.md)$/),
+  commitSha: z.string().regex(/^[a-f0-9]{40}$/), retrievedAt: z.iso.datetime(),
+  documentHash: z.string().regex(/^[a-f0-9]{64}$/),
+  heading: z.string().min(1).max(200),
+}).strict();
 const metadata = z.object({
   kind: z.enum(['owner', 'project-documentation', 'editorial']),
   reference: z.string().min(1).max(500),
   url: safeUrl.optional(),
-}).strict();
+  github: githubProvenanceSchema.optional(),
+}).strict().superRefine((source, ctx) => {
+  if (source.github && (source.kind !== 'project-documentation' || source.url !==
+    'https://github.com/' + source.github.repository + '/blob/' + source.github.commitSha + '/' + source.github.path)) {
+    ctx.addIssue({ code: 'custom', message: 'GitHub provenance requires its immutable documentation URL' });
+  }
+});
 const review = z.object({ reviewedBy: z.string().min(1), reviewedAt: z.iso.date() }).strict();
 const base = z.object({
   id, title: z.string().min(1).max(200), content: z.string().max(12000),

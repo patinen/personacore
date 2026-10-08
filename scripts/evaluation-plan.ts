@@ -2,11 +2,11 @@ import { z } from 'zod';
 import type { Config } from '../src/config.js';
 import { chatRequestSchema } from '../src/contracts.js';
 export const casesSchema = z.array(z.object({
-  id: z.string().min(1), pack: z.enum(['runtime', 'synthetic']), locale: z.enum(['fi', 'en']),
+  id: z.string().min(1), pack: z.enum(['runtime', 'synthetic', 'documentation']), locale: z.enum(['fi', 'en']),
   message: z.string(), history: z.array(z.object({ role: z.enum(['visitor', 'assistant']), content: z.string() })).optional(), expect: z.string().min(1),
 }).strict()).refine(cases => new Set(cases.map(c => c.id)).size === cases.length);
-export function selectCases(cases: z.infer<typeof casesSchema>, synthetic: boolean, ids?: string[]) {
-  const eligible = cases.filter(c => c.pack === (synthetic ? 'synthetic' : 'runtime'));
+export function selectCases(cases: z.infer<typeof casesSchema>, synthetic: boolean, ids?: string[], documentation = false) {
+  const eligible = cases.filter(c => c.pack === (documentation ? 'documentation' : synthetic ? 'synthetic' : 'runtime'));
   if (ids && (ids.length === 0 || ids.some(id => !eligible.some(c => c.id === id)))) throw new Error('Unknown or incompatible selected cases');
   return ids ? eligible.filter(c => ids.includes(c.id)) : eligible;
 }

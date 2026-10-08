@@ -94,3 +94,5 @@ SIGTERM/SIGINT trigger graceful close and abort active provider work. SHUTDOWN_T
 See [the Phase 2 roadmap](docs/roadmap.md), [behavioural evaluation guidance](docs/evaluations.md) and [validation results](docs/validation.md). Phase 2 implements portfolio proxy/UI and persistent attempt controls. Phase 3A adds approved owner context, instructions v2 and grounded offline evaluation preparation. Documentation ingestion, case study, activation and paid model/abuse evaluation remain later work. Current deterministic tests cannot prove actual model correctness. No paid model call is part of normal development validation.
 
 Suggested commit message: feat: add PersonaCore service and curated knowledge foundation
+
+Phase 3B adds [reviewed GitHub documentation ingestion](docs/project-ingestion.md): explicit immutable fetch-to-draft and offline individual promotion. Runtime knowledge is unchanged until reviewed promotion.

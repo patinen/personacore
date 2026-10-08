@@ -33,3 +33,5 @@ Calls are sequential without retries. Default pacing conservatively derives from
 Review answers yourself against rubrics; record model/knowledge/instructions versions and failures with reasons. No judging-model calls. Keep saved outputs local. No paid evaluation was performed.
 
 PowerShell examples use npm.cmd to preserve forwarded CLI switches in this environment. On POSIX use npm, or invoke node --import tsx scripts/evaluate-live.ts --dry-run --cases=pets-fi,colour-en directly. Always inspect the selected case IDs in the offline plan before paid execution.
+
+Phase 3B adds 6 separate fictional documentation cases: npm.cmd run eval:plan -- --documentation. Use --cases=doc-facts-fi,doc-unknown-en,doc-injection-fi to select a subset. This lane loads tests/fixtures/ingestion/evaluation-pack.json, never the active runtime pack; --documentation and --synthetic are mutually exclusive. Documentation cases do not establish actual project or owner facts.
