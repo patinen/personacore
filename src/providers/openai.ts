@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod';
 import type { Config } from '../config.js';
 import { modelAnswerSchema } from '../contracts.js';
-import { instructions } from '../instructions/v1.js';
+import { instructions } from '../instructions/v2.js';
 import type { ChatProvider, ProviderInput, ProviderResult } from './provider.js';
 import { ProviderUnavailable, ProviderRejected } from './provider.js';
 export class OpenAIProvider implements ChatProvider {

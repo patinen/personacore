@@ -52,4 +52,4 @@ Portfolio v1 matches MAX_MESSAGE_CHARS=4000, MAX_HISTORY_MESSAGES=12, MAX_HISTOR
 
 ## Still required before activation
 
-Mount/verify the persistent volume, configure the secrets/model/limits/private ingress, apply/review the portfolio CMS package, and perform explicitly opt-in real-model evaluation. Phase 3 will expand approved owner context and skill evidence, ingest reviewed project documentation, author the case study, and strengthen abuse/behavioural evaluation. The existing knowledge pack remains unchanged. No booking, calendar, email or execution ability was added.
+Mount/verify the persistent volume, configure the secrets/model/limits/private ingress, apply/review the portfolio CMS package, and perform explicitly opt-in real-model evaluation. Phase 3A adds owner-approved interview context and offline grounded evaluation preparation. Reviewed project-documentation ingestion, case study, activation and paid behavioural evaluation remain pending. No booking, calendar, email or execution ability was added.

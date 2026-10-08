@@ -14,7 +14,8 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node --env-file-if-exists=.env dist/server.js",
     "eval:live": "node --env-file-if-exists=.env --import tsx scripts/evaluate-live.ts",
-    "usage:inspect": "node scripts/usage.mjs"
+    "usage:inspect": "node scripts/usage.mjs",
+    "eval:plan": "node --import tsx scripts/evaluate-live.ts --dry-run"
   },
   "dependencies": {
     "fastify": "^5.6.0",

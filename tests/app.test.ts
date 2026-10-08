@@ -46,8 +46,8 @@ test('accepts bounded visitor/assistant history and returns server references an
   const res = await app.inject({ method: 'POST', url: '/v1/chat', headers, payload: { ...payload, history: [{ role: 'visitor', content: 'Hi' }, { role: 'assistant', content: 'Hi' }] } });
   assert.equal(res.statusCode, 200); const data = res.json();
   assert.deepEqual(data.sources, [{ id: 'profile.name', title: 'Representative identity' }]);
-  assert.equal(data.metadata.knowledgeVersion, '2026-10-07.1');
-  assert.equal(data.metadata.instructionsVersion, '1.0.0');
+  assert.equal(data.metadata.knowledgeVersion, '2026-10-08.2');
+  assert.equal(data.metadata.instructionsVersion, '2.0.0');
   assert.equal(data.metadata.usage.totalTokens, 28); assert.ok(data.metadata.durationMs >= 0);
   assert.equal(data.requestId, res.headers['x-request-id']);
 });

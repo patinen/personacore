@@ -44,7 +44,7 @@ The browser will call the portfolio server; that server will call PersonaCore wi
 
 The service reads exactly KNOWLEDGE_DIR/pack.json at startup, validates the whole file, filters published entries before context construction and retains only the filtered result. It never scans home directories, other repositories, private conversations, environment files or accounts. The Node local launcher reads the explicitly named .env as service configuration, never as model knowledge. No Directus sync is installed. Restart after editing a pack; requests do not mutate knowledge.
 
-- knowledge/runtime/pack.json is the minimal approved pack. Draft placeholders contain no invented personal facts.
+- knowledge/runtime/pack.json contains 22 published entries from the approved 2026-10-08 owner interview. Owner approval is not an independent project audit. See [knowledge maintenance](docs/knowledge-maintenance.md).
 - knowledge/example/pack.json is fictional, with purpose:example. tests/fixtures/knowledge/pack.json is synthetic, with purpose:test. The runtime loader rejects both even if KNOWLEDGE_DIR points to them. Only explicit test/live-eval injection accepts them; Docker includes neither.
 - [The Finnish owner questionnaire](docs/context-questionnaire.fi.md) has 52 authoring questions, including per-technology actual builds, independence, unfamiliar areas and evidence. Visitors may ask beyond these questions.
 
@@ -91,6 +91,6 @@ SIGTERM/SIGINT trigger graceful close and abort active provider work. SHUTDOWN_T
 
 ## Next work
 
-See [the Phase 2 roadmap](docs/roadmap.md), [behavioural evaluation guidance](docs/evaluations.md) and [validation results](docs/validation.md). Phase 2 implements portfolio proxy/UI and persistent attempt controls. Phase 3 covers reviewed owner context, documentation ingestion, the case study and real-model/abuse evaluation. Current deterministic tests cannot prove actual model correctness. No paid model call is part of normal development validation.
+See [the Phase 2 roadmap](docs/roadmap.md), [behavioural evaluation guidance](docs/evaluations.md) and [validation results](docs/validation.md). Phase 2 implements portfolio proxy/UI and persistent attempt controls. Phase 3A adds approved owner context, instructions v2 and grounded offline evaluation preparation. Documentation ingestion, case study, activation and paid model/abuse evaluation remain later work. Current deterministic tests cannot prove actual model correctness. No paid model call is part of normal development validation.
 
 Suggested commit message: feat: add PersonaCore service and curated knowledge foundation

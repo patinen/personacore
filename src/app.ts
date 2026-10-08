@@ -4,7 +4,7 @@ import { performance } from 'node:perf_hooks';
 import type { Config } from './config.js';
 import { chatRequestSchema, modelAnswerSchema, type ChatResponse, type TokenUsage } from './contracts.js';
 import { loadKnowledge, resolveSources, type Knowledge } from './knowledge.js';
-import { instructionsVersion } from './instructions/v1.js';
+import { instructionsVersion } from './instructions/v2.js';
 import { OpenAIProvider } from './providers/openai.js';
 import { FakeProvider } from './providers/fake.js';
 import { AdmissionDenied, SQLiteUsageStore, validVisitor, visitorHeader, type UsageStore, type Reservation } from './usage.js';

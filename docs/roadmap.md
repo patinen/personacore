@@ -8,7 +8,7 @@ Phase 2 adds the same-origin portfolio proxy, signed anonymous sessions, CMS-con
 
 ## Phase 3
 
-- Expand and review owner context, evidence-based skills and project responsibilities; leave unknown details unpublished.
+- Phase 3A implemented: approved interview knowledge, evidence/limitations, instructions v2 and grounded offline evaluation planning. Additional owner answers require separate public approval.
 - Evaluate actual model behaviour using owner-grounded cases and prompt-injection attempts. Mocked checks do not prove hallucination resistance.
 - Implement reviewed Directus documentation sync with publication boundaries and the existing overview, architecture, system_flow, engineering, implementation and interface sections.
 - Author PersonaCore’s case study using those sections.

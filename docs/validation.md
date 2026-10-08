@@ -75,3 +75,21 @@ Mock adapter-to-application regressions cover completed, incomplete, refused, ma
 Node v22.17.1: lint, typecheck, full tests (64 passed, zero failures) and build passed. All SDK requests use mocked transport; no live model behaviour or paid calls were tested. Knowledge, activation and deployment were unchanged; no commits or pushes.
 
 Official API context: [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs) documents refusal and incomplete-response handling. Installed SDK implementation was the source for the local create/parse decision.
+
+## Phase 3A owner knowledge and evaluation preparation — 2026-10-08
+
+Started clean at service baseline 0970fe4a2ae8c69334380b874d3c5bcb0e2102e2 and portfolio feature baseline 57e656787aa200763ce1698d4dedf61ca6e94a6b. No applicable AGENTS.md was found. Portfolio stayed clean on feat/personacore-chat; main was untouched.
+
+Runtime pack 2026-10-08.1 contains 21 published owner-interview entries, 16,681 context characters against the unchanged 30,000 default. Instructions v2 (2.0.0) add approved dry voice, evidence distinctions and categorical privacy. No cat identifier or excluded personal values were supplied/stored; no external project material was fetched.
+
+Node v22.17.1: lint, strict typecheck, all 68 deterministic tests and production build passed. Existing security, persistent usage, rejected-output accounting and timeout/disconnect regressions remain passing. Initial metadata assertions for old knowledge/instructions versions failed and were updated to the explicitly versioned new content.
+
+Offline plans passed for all 46 runtime cases, selected bilingual subsets and the 3 isolated synthetic cases, without API keys or provider calls. The full plan reports the default visitor allowance mismatch before paid execution. Planning tests cover selection, invalid IDs, config/remaining-aggregate/pacing blockers and no-key CLI output. npm PowerShell forwarding initially omitted switches; verified npm.cmd and direct-node invocations select the intended cases, and documentation uses those forms.
+
+No paid evaluation, activation, CMS changes, deployment, commits or pushes. Deterministic checks do not establish model behaviour or hallucination resistance. Portfolio compatibility edits were unnecessary; no portfolio validation was rerun because it was unchanged.
+
+### Approved Phase 3A supplement — 2026-10-08
+
+Included collaboration arrangements, remote/international openness, technology tradeoffs and agent interest with explicit experience/tool boundaries. Replaced the earlier employment-arrangements gap; availability, schedules, rates and project commitments remain unconfirmed. Added the two optional voice examples without mandatory repetition.
+
+Pack 2026-10-08.2: 22 published entries, 18,581 context characters within the unchanged 30,000 budget. Runtime rubrics now number 54, with 3 separate synthetic cases. Lint, typecheck, all 68 deterministic tests, production build and offline selected planning passed on Node 22.17.1. Portfolio remains clean on feat/personacore-chat. No paid calls, activation, CMS mutation, deployment or commits. This supplement remains in the same uncommitted Phase 3A scope.
