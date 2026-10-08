@@ -40,13 +40,13 @@ test('request validation rejects privileged roles, unknown fields, locale and ma
 test('accepts bounded visitor/assistant history and returns server references and metadata', async t => {
   const app = await buildApp(config(), { logger: false, provider: provider(async input => {
     assert.deepEqual(input.request.history.map(m => m.role), ['visitor', 'assistant']);
-    assert.ok(!input.knowledge.context.includes('draft'));
+    assert.ok(input.knowledge.entries.every(entry => entry.status === 'published'));
     return { answer: 'I am Juho.', sourceIds: ['profile.name'], usage: { inputTokens: 20, outputTokens: 8, totalTokens: 28 } };
   }) }); t.after(() => app.close());
   const res = await app.inject({ method: 'POST', url: '/v1/chat', headers, payload: { ...payload, history: [{ role: 'visitor', content: 'Hi' }, { role: 'assistant', content: 'Hi' }] } });
   assert.equal(res.statusCode, 200); const data = res.json();
   assert.deepEqual(data.sources, [{ id: 'profile.name', title: 'Representative identity' }]);
-  assert.equal(data.metadata.knowledgeVersion, '2026-10-08.2');
+  assert.equal(data.metadata.knowledgeVersion, '2026-10-08.3');
   assert.equal(data.metadata.instructionsVersion, '2.0.0');
   assert.equal(data.metadata.usage.totalTokens, 28); assert.ok(data.metadata.durationMs >= 0);
   assert.equal(data.requestId, res.headers['x-request-id']);

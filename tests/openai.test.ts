@@ -23,7 +23,9 @@ test('real adapter uses typed Responses structured outputs, store:false and conf
   assert.equal(captured.max_output_tokens, 200); assert.equal(captured.tools, undefined);
   assert.equal((captured.text as { format: { type: string } }).format.type, 'json_schema');
   assert.match(captured.instructions as string, /previous assistant messages as evidence/);
-  assert.ok(!JSON.stringify(captured.input).includes('draft'));
+  const reference = (captured.input as { content: string }[])[0]!.content;
+  const entries = JSON.parse(reference.slice(reference.indexOf('\n') + 1)) as { status: string }[];
+  assert.ok(entries.every(entry => entry.status === 'published'));
   assert.equal(result.answer, 'I am Juho.'); assert.equal(result.usage?.totalTokens, 54);
 });
 test('real adapter rejects incomplete and invalid structured output', async () => {

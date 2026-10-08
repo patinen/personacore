@@ -1,6 +1,6 @@
 # Owner knowledge maintenance
 
-Runtime pack 2026-10-08.2 has 22 published entries from Juho’s approved public interview of 2026-10-08. Owner-source and review metadata mean approval of supplied answers, not an independent audit. SecureShare’s supplied URL is a reference; no documentation was fetched.
+The original owner foundation has 22 published entries from Juho’s approved public interview of 2026-10-08. Owner-source and review metadata mean approval of supplied answers, not an independent audit. SecureShare’s supplied URL is a reference; no documentation was fetched.
 
 The reference is compact, without duplicate locale copies. Preserve qualifications and limitations rather than flattering keywords. Published context includes JSON metadata; the default 30,000-character budget fails rather than dropping entries.
 
@@ -16,3 +16,5 @@ Deliberately private: exact age/address/location, private individuals/family aff
 Portfolio/CMS, documentation sync, case study, activation, deployment and paid evaluation remain outside Phase 3A.
 
 For documentation-backed project entries, follow [the explicit GitHub authoring workflow](project-ingestion.md). Preserve owner interview entries separately; documentation never establishes personal proficiency or sole authorship.
+
+Phase 3C runtime 2026-10-08.3 adds four reviewed project-documentation summaries (26 published entries total), at 26,575 context characters with 3,425 remaining. See ingestion/curated/2026-10-08/review.json and README.md for authoring inputs, owner fingerprints, pinned selections and conflicts. Preserve the original owner entries; review metadata on documentation identifies Codex source-document review authorized by Juho, not a new personal interview or audit.

@@ -24,9 +24,10 @@ test('rejects malformed packs, duplicate IDs and unsupported skill scores', asyn
 });
 test('runtime contains only approved facts and excludes synthetic packs', async () => {
   const knowledge = await runtime();
-  assert.equal(knowledge.entries.length, 22);
+  assert.equal(knowledge.entries.length, 26);
   assert.ok(knowledge.context.length <= 30000);
-  assert.ok(knowledge.entries.every(e => e.source.kind === 'owner' && e.review?.reviewedAt === '2026-10-08'));
+  assert.equal(knowledge.entries.filter(e => e.source.kind === 'owner').length, 22);
+  assert.ok(knowledge.entries.every(e => e.review?.reviewedAt === '2026-10-08'));
   assert.doesNotMatch(knowledge.context, /violet|DRAFT_SECRET/);
   await assert.rejects(loadKnowledge(resolve('tests/fixtures/knowledge'), 30000), /Runtime knowledge/);
   await assert.rejects(loadKnowledge(resolve('knowledge/example'), 30000), /Runtime knowledge/);
@@ -55,6 +56,6 @@ test('loader reads only pack.json in the explicitly configured directory', async
     await writeFile(join(dir, 'unrelated', 'private.json'), '{private data}');
     await writeFile(join(dir, 'ignored.json'), '{bad json}');
     await writeFile(join(dir, 'pack.json'), await readFile('knowledge/runtime/pack.json'));
-    assert.equal((await loadKnowledge(dir, 30000)).entries.length, 22);
+    assert.equal((await loadKnowledge(dir, 30000)).entries.length, 26);
   } finally { await rm(dir, { recursive: true, force: true }); }
 });

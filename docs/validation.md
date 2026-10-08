@@ -111,3 +111,25 @@ A small public fetch succeeded for all five manifest selections, saving ingestio
 Offline CLI promotion preview succeeded for SecureShare with an explicitly non-owner validation reviewer; --apply was never used. The runtime pack remains byte-for-byte unchanged (22 published entries, 18,581 context characters). All five raw excerpts together would be approximately 32,032 characters with a short reviewer label, exceeding 30,000; particularly the 5,818-character API-contract selection needs narrower selection/manual summary if all sources are desired. Exact size is checked individually at every promotion.
 
 All new imported entries remain draft, separate from runtime. No paid calls or real-model behaviour tests, commits, pushes, activation, Directus changes, production configuration changes or deployment occurred.
+
+## Phase 3C local documentation publication — 2026-10-08
+
+Started clean at 4ce3a2a4883abc7632867e28ef65214d6e2e8c0e. Scope remained PersonaCore only; portfolio is clean on feat/personacore-chat. No applicable AGENTS.md was found.
+
+Inspected all existing draft sources at immutable revisions. Added four exact README-title selections for purpose/workflow/limitation coverage and fetched ingestion/drafts/2026-10-08T13-03-20-761Z.json. Full README candidates exceeded the raw character threshold as expected; manually curated summaries outside runtime were individually published using the existing offline promotion command. Final runtime version: 2026-10-08.3.
+
+Published IDs/revisions:
+- docs.secureshare.overview — d56eacf35045d786cac19fc0a4fd26057646000e
+- docs.projectpulse.overview — edbcd54c462cb4c2e997d1bff21a540964364c4d
+- docs.statuscore.overview — 1ba527b2bafc3f00d8002b1727bcf515c8b23ade
+- docs.personacore.overview — 4ce3a2a4883abc7632867e28ef65214d6e2e8c0e
+
+All source paths are README.md; exact headings match project titles. Authoring inputs, reviewed source-section mapping, immutable hashes and owner-entry fingerprints live in ingestion/curated/2026-10-08. Reviewer metadata identifies Codex source-document review authorized by Juho, not a fresh interview approval or independent implementation audit. URL/hash/retrieval/revision and latest available ingestion observation are retained. No duplicate PersonaCore API entry was published.
+
+The pack has 26 published entries: 22 unchanged owner entries plus four summaries. Published JSON context is 26,575 characters, leaving 3,425 of the unchanged 30,000 budget. Owner-entry canonical fingerprints match the pre-publication snapshot.
+
+Conflict review: no substantive SecureShare interview/documentation conflict found. Pinned PersonaCore README introduction and generic missing-owner-fact examples are stale relative to approved pets/education/skills context; its v1 instruction/parse references are stale as well. Those claims were not imported as facts. The summary flags the stale owner-fact material; the local maintenance README now describes current state. Historical source text remains immutable.
+
+Validation on Node v22.17.1: lint, strict typecheck, all 86 deterministic tests, build, and offline representative runtime plans passed. Tests cover curated-input/source alignment, provenance, review/observation metadata, owner preservation and at least 3,000 characters of headroom. Twenty new bilingual runtime evaluation cases cover real project architecture/workflows, absent details, planned versus implemented features and documentation/personal-evidence boundaries; fictional documentation fixtures remain separate. Initial tests rejected the literal word draft in valid prose; those were corrected to assert published entry status in context.
+
+No paid model evaluation, independent implementation verification, deployment, activation, Directus mutation, production configuration changes, commits or pushes. Local content publication was explicitly authorized. Other fetched candidates remain unpublished.

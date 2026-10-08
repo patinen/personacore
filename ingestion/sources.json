@@ -45,6 +45,42 @@
       "heading": "PersonaCore API v1",
       "projectSlug": "personacore",
       "section": "interface"
+    },
+    {
+      "id": "docs.secureshare.overview",
+      "repository": "patinen/secureshare",
+      "branch": "main",
+      "path": "README.md",
+      "heading": "SecureShare",
+      "projectSlug": "secureshare",
+      "section": "overview"
+    },
+    {
+      "id": "docs.projectpulse.overview",
+      "repository": "patinen/projectpulse",
+      "branch": "main",
+      "path": "README.md",
+      "heading": "ProjectPulse",
+      "projectSlug": "projectpulse",
+      "section": "overview"
+    },
+    {
+      "id": "docs.statuscore.overview",
+      "repository": "patinen/statuscore",
+      "branch": "main",
+      "path": "README.md",
+      "heading": "StatusCore",
+      "projectSlug": "statuscore",
+      "section": "overview"
+    },
+    {
+      "id": "docs.personacore.overview",
+      "repository": "patinen/personacore",
+      "branch": "main",
+      "path": "README.md",
+      "heading": "PersonaCore",
+      "projectSlug": "personacore",
+      "section": "overview"
     }
   ]
 }

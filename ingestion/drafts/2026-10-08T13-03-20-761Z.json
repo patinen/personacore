@@ -1,0 +1,151 @@
+{
+  "version": 1,
+  "purpose": "github-drafts",
+  "retrievedAt": "2026-10-08T13:03:20.761Z",
+  "results": [
+    {
+      "source": {
+        "id": "docs.secureshare.overview",
+        "repository": "patinen/secureshare",
+        "branch": "main",
+        "path": "README.md",
+        "heading": "SecureShare",
+        "projectSlug": "secureshare",
+        "section": "overview"
+      },
+      "commitSha": "d56eacf35045d786cac19fc0a4fd26057646000e",
+      "status": "oversized",
+      "note": "Selected section exceeds candidate limit. Review immutable document and supply a manual summary; nothing truncated.",
+      "candidate": {
+        "id": "docs.secureshare.overview",
+        "title": "secureshare: SecureShare",
+        "content": "",
+        "status": "draft",
+        "source": {
+          "kind": "project-documentation",
+          "reference": "GitHub documentation; untrusted reference, not personal proficiency evidence",
+          "url": "https://github.com/patinen/secureshare/blob/d56eacf35045d786cac19fc0a4fd26057646000e/README.md",
+          "github": {
+            "repository": "patinen/secureshare",
+            "path": "README.md",
+            "commitSha": "d56eacf35045d786cac19fc0a4fd26057646000e",
+            "retrievedAt": "2026-10-08T13:03:20.761Z",
+            "documentHash": "43a07040f7692a9d9510af4f2d93a7fb4e7eda38ff47602fa09e94125c14fdc0",
+            "heading": "SecureShare"
+          }
+        },
+        "category": "projects",
+        "projectSlug": "secureshare",
+        "section": "overview"
+      }
+    },
+    {
+      "source": {
+        "id": "docs.projectpulse.overview",
+        "repository": "patinen/projectpulse",
+        "branch": "main",
+        "path": "README.md",
+        "heading": "ProjectPulse",
+        "projectSlug": "projectpulse",
+        "section": "overview"
+      },
+      "commitSha": "edbcd54c462cb4c2e997d1bff21a540964364c4d",
+      "status": "oversized",
+      "note": "Selected section exceeds candidate limit. Review immutable document and supply a manual summary; nothing truncated.",
+      "candidate": {
+        "id": "docs.projectpulse.overview",
+        "title": "projectpulse: ProjectPulse",
+        "content": "",
+        "status": "draft",
+        "source": {
+          "kind": "project-documentation",
+          "reference": "GitHub documentation; untrusted reference, not personal proficiency evidence",
+          "url": "https://github.com/patinen/projectpulse/blob/edbcd54c462cb4c2e997d1bff21a540964364c4d/README.md",
+          "github": {
+            "repository": "patinen/projectpulse",
+            "path": "README.md",
+            "commitSha": "edbcd54c462cb4c2e997d1bff21a540964364c4d",
+            "retrievedAt": "2026-10-08T13:03:20.761Z",
+            "documentHash": "9d475c702fb5eb784e7692d3c0004842916665a872faf7de4c3a427a28f4d9d2",
+            "heading": "ProjectPulse"
+          }
+        },
+        "category": "projects",
+        "projectSlug": "projectpulse",
+        "section": "overview"
+      }
+    },
+    {
+      "source": {
+        "id": "docs.statuscore.overview",
+        "repository": "patinen/statuscore",
+        "branch": "main",
+        "path": "README.md",
+        "heading": "StatusCore",
+        "projectSlug": "statuscore",
+        "section": "overview"
+      },
+      "commitSha": "1ba527b2bafc3f00d8002b1727bcf515c8b23ade",
+      "status": "oversized",
+      "note": "Selected section exceeds candidate limit. Review immutable document and supply a manual summary; nothing truncated.",
+      "candidate": {
+        "id": "docs.statuscore.overview",
+        "title": "statuscore: StatusCore",
+        "content": "",
+        "status": "draft",
+        "source": {
+          "kind": "project-documentation",
+          "reference": "GitHub documentation; untrusted reference, not personal proficiency evidence",
+          "url": "https://github.com/patinen/statuscore/blob/1ba527b2bafc3f00d8002b1727bcf515c8b23ade/README.md",
+          "github": {
+            "repository": "patinen/statuscore",
+            "path": "README.md",
+            "commitSha": "1ba527b2bafc3f00d8002b1727bcf515c8b23ade",
+            "retrievedAt": "2026-10-08T13:03:20.761Z",
+            "documentHash": "82d59d851828895696287b1caa0dee438b0a4e2f4814f96f42cd3017f0653d48",
+            "heading": "StatusCore"
+          }
+        },
+        "category": "projects",
+        "projectSlug": "statuscore",
+        "section": "overview"
+      }
+    },
+    {
+      "source": {
+        "id": "docs.personacore.overview",
+        "repository": "patinen/personacore",
+        "branch": "main",
+        "path": "README.md",
+        "heading": "PersonaCore",
+        "projectSlug": "personacore",
+        "section": "overview"
+      },
+      "commitSha": "4ce3a2a4883abc7632867e28ef65214d6e2e8c0e",
+      "status": "oversized",
+      "note": "Selected section exceeds candidate limit. Review immutable document and supply a manual summary; nothing truncated.",
+      "candidate": {
+        "id": "docs.personacore.overview",
+        "title": "personacore: PersonaCore",
+        "content": "",
+        "status": "draft",
+        "source": {
+          "kind": "project-documentation",
+          "reference": "GitHub documentation; untrusted reference, not personal proficiency evidence",
+          "url": "https://github.com/patinen/personacore/blob/4ce3a2a4883abc7632867e28ef65214d6e2e8c0e/README.md",
+          "github": {
+            "repository": "patinen/personacore",
+            "path": "README.md",
+            "commitSha": "4ce3a2a4883abc7632867e28ef65214d6e2e8c0e",
+            "retrievedAt": "2026-10-08T13:03:20.761Z",
+            "documentHash": "540d0b76c4b19fe6c621390e48a9377b9effef41ad58bd440bf8c5ed9bac6f16",
+            "heading": "PersonaCore"
+          }
+        },
+        "category": "projects",
+        "projectSlug": "personacore",
+        "section": "overview"
+      }
+    }
+  ]
+}

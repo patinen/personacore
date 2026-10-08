@@ -115,14 +115,14 @@ test('schema rejects mutable provenance URLs without breaking owner metadata', a
   result.results[0]!.candidate!.source.url = 'https://github.com/patinen/secureshare/blob/main/README.md';
   assert.throws(() => packSchema.parse({ ...rawPack(), entries: [result.results[0]!.candidate] }));
   const owner = JSON.parse(await readFile('knowledge/runtime/pack.json', 'utf8'));
-  assert.equal(packSchema.parse(owner).entries.length, 22);
+  assert.equal(packSchema.parse(owner).entries.length, 26);
 });
 test('updates replace one stable ID, detect source changes and preserve owner entries', async () => {
   const owner = JSON.parse(await readFile('knowledge/runtime/pack.json', 'utf8'));
   const first = promote(owner, await batch(), manifest.sources, review);
   const second = promote(first.pack, await batch(text.replace('PostgreSQL', 'Fixture database'), nextSha), manifest.sources, { ...review, version: 'next' });
   assert.equal(second.change, 'updated');
-  assert.equal(second.pack.entries.length, 23);
+  assert.equal(second.pack.entries.length, 27);
   assert.deepEqual(second.pack.entries.filter(e => e.id !== source.id), owner.entries);
   assert.equal(second.pack.entries.find(e => e.id === source.id)!.source.github!.commitSha, nextSha);
   const clash = structuredClone(first.pack); clash.entries[0]!.id = source.id;

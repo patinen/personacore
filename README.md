@@ -1,6 +1,6 @@
 # PersonaCore
 
-PersonaCore, through Phase 2, is Juho's AI representative for the existing technical portfolio. Visitors can ask professional, technical, personal and casual questions. The runtime pack contains only explicitly approved identity, conversation scope, booking boundaries and voice facts; unknown background, skills, interests and project content remain drafts. The separate portfolio repository now includes a disabled-by-default server proxy and inline panel; activation remains an owner operation. See docs/public-demo.md.
+PersonaCore is Juho's AI representative for the existing technical portfolio, supporting professional, technical, personal and casual questions. Runtime pack 2026-10-08.3 contains 22 owner-approved interview entries and four separately reviewed, documentation-backed project summaries. The portfolio proxy/panel remains disabled by default; local knowledge publication does not activate it.
 
 ## Local setup
 
@@ -44,7 +44,7 @@ The browser will call the portfolio server; that server will call PersonaCore wi
 
 The service reads exactly KNOWLEDGE_DIR/pack.json at startup, validates the whole file, filters published entries before context construction and retains only the filtered result. It never scans home directories, other repositories, private conversations, environment files or accounts. The Node local launcher reads the explicitly named .env as service configuration, never as model knowledge. No Directus sync is installed. Restart after editing a pack; requests do not mutate knowledge.
 
-- knowledge/runtime/pack.json contains 22 published entries from the approved 2026-10-08 owner interview. Owner approval is not an independent project audit. See [knowledge maintenance](docs/knowledge-maintenance.md).
+- knowledge/runtime/pack.json contains 22 unchanged owner interview entries and four documentation summaries reviewed by Codex under owner authorization, not an independent audit. Owner approval is not an independent project audit. See [knowledge maintenance](docs/knowledge-maintenance.md).
 - knowledge/example/pack.json is fictional, with purpose:example. tests/fixtures/knowledge/pack.json is synthetic, with purpose:test. The runtime loader rejects both even if KNOWLEDGE_DIR points to them. Only explicit test/live-eval injection accepts them; Docker includes neither.
 - [The Finnish owner questionnaire](docs/context-questionnaire.fi.md) has 52 authoring questions, including per-technology actual builds, independence, unfamiliar areas and evidence. Visitors may ask beyond these questions.
 
@@ -64,7 +64,7 @@ Categories: profile, skills, working_style, preferences, services, projects, voi
 }
 ```
 
-Only approve real facts and limitations. Do not copy fictional example facts into runtime. Missing favourite colour, pets, location, education and technology experience must stay unknown. Knowledge is reference data, not policy: versioned instructions live separately in src/instructions/v1.ts. Documentation and visitors cannot override them or establish new personal facts; previous assistant text is not evidence. Prompt rules guide actual model behaviour but cannot guarantee hallucination resistance; evaluate the selected model before public use.
+Only approve real facts and limitations. Do not copy fictional example facts into runtime. Unsupplied facts remain unknown; deliberately private information stays outside this representative. Knowledge is reference data, not policy: versioned instructions live separately in src/instructions/v2.ts. Documentation and visitors cannot override them or establish new personal facts; previous assistant text is not evidence. Prompt rules guide actual model behaviour but cannot guarantee hallucination resistance; evaluate the selected model before public use.
 
 ## Limits and privacy
 
@@ -74,7 +74,7 @@ REQUEST_TIMEOUT_MS is an overall chat deadline from onRequest, also used for rec
 
 Logs contain generated request IDs, status, duration and token usage when available, never full conversations, profile content, query strings, bearer secrets, API keys or raw provider errors by default. SDK logging is disabled. API failures are sanitized. No server chat history is persisted.
 
-Responses requests use store:false, disabling Responses application-state storage for these requests. This alone does not promise zero retention across all provider systems; abuse-monitoring logs and account-specific data controls still apply. Consult [OpenAI data controls](https://developers.openai.com/api/docs/guides/your-data). Structured outputs use the official SDK's responses.parse and zodTextFormat, checked against installed SDK types and [official Structured Outputs documentation](https://developers.openai.com/api/docs/guides/structured-outputs). Fastify request logging is explicitly controlled using [LogController](https://fastify.dev/docs/latest/Reference/Server/#logcontroller).
+Responses requests use store:false, disabling Responses application-state storage for these requests. This alone does not promise zero retention across all provider systems; abuse-monitoring logs and account-specific data controls still apply. Consult [OpenAI data controls](https://developers.openai.com/api/docs/guides/your-data). Structured outputs use the official SDK's responses.create and zodTextFormat with strict JSON/Zod validation after usage capture, checked against installed SDK types and [official Structured Outputs documentation](https://developers.openai.com/api/docs/guides/structured-outputs). Fastify request logging is explicitly controlled using [LogController](https://fastify.dev/docs/latest/Reference/Server/#logcontroller).
 
 ## Docker and eventual Coolify settings
 
@@ -91,7 +91,7 @@ SIGTERM/SIGINT trigger graceful close and abort active provider work. SHUTDOWN_T
 
 ## Next work
 
-See [the Phase 2 roadmap](docs/roadmap.md), [behavioural evaluation guidance](docs/evaluations.md) and [validation results](docs/validation.md). Phase 2 implements portfolio proxy/UI and persistent attempt controls. Phase 3A adds approved owner context, instructions v2 and grounded offline evaluation preparation. Documentation ingestion, case study, activation and paid model/abuse evaluation remain later work. Current deterministic tests cannot prove actual model correctness. No paid model call is part of normal development validation.
+See [the Phase 2 roadmap](docs/roadmap.md), [behavioural evaluation guidance](docs/evaluations.md) and [validation results](docs/validation.md). Phase 2 implements portfolio proxy/UI and persistent attempt controls. Phase 3A adds approved owner context, instructions v2 and grounded offline evaluation preparation. Phase 3B provides reviewed ingestion, and Phase 3C publishes four curated documentation summaries locally. Directus synchronization, case study, activation and paid model/abuse evaluation remain later work. Current deterministic tests cannot prove actual model correctness. No paid model call is part of normal development validation.
 
 Suggested commit message: feat: add PersonaCore service and curated knowledge foundation
 

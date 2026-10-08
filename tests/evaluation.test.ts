@@ -10,8 +10,8 @@ test('grounded cases validate, remain bilingual and keep synthetic packs separat
   const cases = casesSchema.parse(JSON.parse(await readFile('evals/cases.json', 'utf8')));
   const selected = selectCases(cases, false);
   validateCases(selected, config());
-  assert.equal(selected.length, 54);
-  for (const topic of ['pets', 'colour', 'education', 'postgresql', 'deployment', 'secureshare', 'unknown-private', 'private-inference', 'false-owner', 'false-history', 'collaboration', 'availability', 'tradeoffs', 'agent-interest']) {
+  assert.equal(selected.length, 74);
+  for (const topic of ['pets', 'colour', 'education', 'postgresql', 'deployment', 'secureshare', 'unknown-private', 'private-inference', 'false-owner', 'false-history', 'collaboration', 'availability', 'tradeoffs', 'agent-interest', 'real-secureshare-flow', 'real-projectpulse-flow', 'real-statuscore-flow', 'real-personacore-flow', 'real-unknown-details', 'real-docs-vs-skills']) {
     for (const locale of ['fi', 'en']) assert.ok(selected.some(c => c.id === topic + '-' + locale));
   }
   assert.equal(selectCases(cases, true).length, 3);
@@ -22,7 +22,7 @@ test('grounded cases validate, remain bilingual and keep synthetic packs separat
 });
 test('preflight rejects full-set default allowances and unsafe pacing without changing limits', () => {
   const conf = config();
-  assert.ok(admissionPlan(conf, 54).blockers.some(b => b.includes('VISITOR_DAILY_ALLOWANCE')));
+  assert.ok(admissionPlan(conf, 74).blockers.some(b => b.includes('VISITOR_DAILY_ALLOWANCE')));
   assert.ok(admissionPlan(conf, 2, 99).blockers.some(b => b.includes('aggregate')));
   assert.ok(admissionPlan(conf, 2, 0, 1).blockers.some(b => b.includes('Pacing')));
   assert.equal(admissionPlan(conf, 2).blockers.length, 0);
@@ -35,7 +35,7 @@ test('offline CLI needs no key, opt-in or provider, and shows versions/cases/adm
   });
   const plan = JSON.parse(stdout);
   assert.equal(plan.mode, 'OFFLINE_PLAN');
-  assert.equal(plan.knowledgeVersion, '2026-10-08.2');
+  assert.equal(plan.knowledgeVersion, '2026-10-08.3');
   assert.equal(plan.instructionsVersion, instructionsVersion);
   assert.equal(plan.cases.length, 2);
   assert.ok(plan.admission.blockers.length);

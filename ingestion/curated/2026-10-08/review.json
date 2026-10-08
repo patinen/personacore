@@ -1,0 +1,67 @@
+{
+  "reviewer": "Codex source-document review authorized by Juho; not a personal interview or independent audit",
+  "reviewDate": "2026-10-08",
+  "batch": "ingestion/drafts/2026-10-08T13-03-20-761Z.json",
+  "ownerEntryHashes": {
+    "profile.name": "5da6d5cb1343b90764532d87d65910cccb0e2478bc77758c8028cf4638a265b9",
+    "profile.background": "bb6a6ce4ac2d0bfd6b9eed7a97f09163a80b020f5acfd73f3d99b8d4a5a47d9e",
+    "working-style.usability": "0eecf9fbde10b0f1f6b17e7584109253213adc620685b0f60a399a0696bab975",
+    "skills.web": "695a892c20ec051d02bd81f77cb8e1936338cff1bf2fc1f50c4c78549fc3f959",
+    "skills.postgresql": "08b8c2380d9df6bfa62cccffeea6d4a704e5cfeae036bc571da051eee3d00bd7",
+    "skills.infrastructure": "6b4343e2ac8d2dd9f93f8cd4c3854acab2fa9907b391e4d83fd276c17b4a6319",
+    "skills.security": "4a84d71c28d33da7a8b44f3f82e3b797d288c66b0c0c8e440870dffb9396c3b4",
+    "projects.secureshare.overview": "497b20ca465079eef9cda7076569065eb186b4bbe7941b71f2643de68a8ba3f0",
+    "projects.secureshare.architecture": "053b9c1728677389a42b63a2b8e315fc3d2b6cf2cbcd0189436b92a7a4f2a3ce",
+    "working-style.debugging": "0ca21161242cc943580242c138fbc1ad7e97408489be02d1baf28298f7407c76",
+    "working-style.ai-review": "c33a2623d0754edba94f846847dcec64e1e544c2be4b76d625951b7e9278ddc3",
+    "working-style.collaboration": "4af786939f340fc29587c97febf7ab6c2f8eb4ab7dea10eb1f0a70f8c9051704",
+    "services.capabilities": "66507f278b25d52ff9868a3c15ac15a5da074168c5bd0954ef3e705bbcc3045c",
+    "preferences.music": "0f96fb03ac40b7f100e1ff7c97ba622eba442b82e8500ebe31e37df7d7f2064b",
+    "preferences.interests": "940bec10b6d398c0eccb61111960c28bec0fe31d508200cff49d19a3415858d1",
+    "preferences.animals": "44c75d37d209ac10d6dc2e4ae70fbb73212ab1672b24e61766acf63c6bc0fc13",
+    "preferences.colour": "26a40895b38cbe31ac07b7b9680d949e426cce9804c98b2105d5c67e5568c026",
+    "profile.privacy": "48b3394d47b9563987ed92fef33e672f5f10981a9a38fb006b2538240719da6a",
+    "services.conversation": "21dda00bad19c0afb4896be8977c45176ca5e2162043c60cf3b9c5c62cb63198",
+    "services.booking": "be3d4c26b6e68ee5bea32dd5b45903682771e2ddca951043cd764f32385260f1",
+    "voice.default": "1c989e5a11b197ce9144d71e198778989ccf25d0ff182d1273ece71e7431e644",
+    "preferences.technology": "80dc48a2313b6e3d8cb18c851f7210b85f17d559d2b5c1b1eae4478fe4c5d481"
+  },
+  "entries": [
+    {
+      "id": "docs.secureshare.overview",
+      "summaryFile": "ingestion/curated/2026-10-08/secureshare.md",
+      "repository": "patinen/secureshare",
+      "path": "README.md",
+      "heading": "SecureShare",
+      "commitSha": "d56eacf35045d786cac19fc0a4fd26057646000e",
+      "documentHash": "43a07040f7692a9d9510af4f2d93a7fb4e7eda38ff47602fa09e94125c14fdc0"
+    },
+    {
+      "id": "docs.projectpulse.overview",
+      "summaryFile": "ingestion/curated/2026-10-08/projectpulse.md",
+      "repository": "patinen/projectpulse",
+      "path": "README.md",
+      "heading": "ProjectPulse",
+      "commitSha": "edbcd54c462cb4c2e997d1bff21a540964364c4d",
+      "documentHash": "9d475c702fb5eb784e7692d3c0004842916665a872faf7de4c3a427a28f4d9d2"
+    },
+    {
+      "id": "docs.statuscore.overview",
+      "summaryFile": "ingestion/curated/2026-10-08/statuscore.md",
+      "repository": "patinen/statuscore",
+      "path": "README.md",
+      "heading": "StatusCore",
+      "commitSha": "1ba527b2bafc3f00d8002b1727bcf515c8b23ade",
+      "documentHash": "82d59d851828895696287b1caa0dee438b0a4e2f4814f96f42cd3017f0653d48"
+    },
+    {
+      "id": "docs.personacore.overview",
+      "summaryFile": "ingestion/curated/2026-10-08/personacore.md",
+      "repository": "patinen/personacore",
+      "path": "README.md",
+      "heading": "PersonaCore",
+      "commitSha": "4ce3a2a4883abc7632867e28ef65214d6e2e8c0e",
+      "documentHash": "540d0b76c4b19fe6c621390e48a9377b9effef41ad58bd440bf8c5ed9bac6f16"
+    }
+  ]
+}
